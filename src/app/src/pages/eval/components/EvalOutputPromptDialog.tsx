@@ -10,6 +10,7 @@ import {
 } from '@app/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@app/components/ui/tabs';
 import { HIDDEN_METADATA_KEYS } from '@app/constants';
+import { useTranslation } from '@app/i18n';
 import { getRedteamHistoryMessages } from '@app/utils/redteamHistory';
 import { Check, Copy, X } from 'lucide-react';
 import ChatMessages, { type Message } from './ChatMessages';
@@ -177,6 +178,7 @@ export default function EvalOutputPromptDialog({
   cloudConfig,
   readOnly = false,
 }: EvalOutputPromptDialogProps) {
+  const { isZh } = useTranslation();
   const [activeTab, setActiveTab] = useState('prompt-output');
   const [copied, setCopied] = useState(false);
   const [copiedFields, setCopiedFields] = useState<{ [key: string]: boolean }>({});
@@ -366,9 +368,14 @@ export default function EvalOutputPromptDialog({
       >
         {/* Header with title and close button */}
         <SheetHeader className="flex flex-row items-center justify-between p-4 border-b border-border space-y-0">
-          <SheetTitle>Details{provider && `: ${provider}`}</SheetTitle>
+          <SheetTitle>
+            {isZh ? '详细信息' : 'Details'}
+            {provider && `: ${provider}`}
+          </SheetTitle>
           <SheetDescription className="sr-only">
-            View prompt, output, evaluation results, and metadata details
+            {isZh
+              ? '查看提示词、输出内容、评测结果及元数据详情'
+              : 'View prompt, output, evaluation results, and metadata details'}
           </SheetDescription>
           <Button
             variant="ghost"
@@ -392,14 +399,20 @@ export default function EvalOutputPromptDialog({
               value="prompt-output"
               className="-mb-px rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
             >
-              {hasOutputContent ? 'Prompt & Output' : 'Prompt'}
+              {hasOutputContent
+                ? isZh
+                  ? '提示词与输出'
+                  : 'Prompt & Output'
+                : isZh
+                  ? '提示词'
+                  : 'Prompt'}
             </TabsTrigger>
             {hasEvaluationData && (
               <TabsTrigger
                 value="evaluation"
                 className="-mb-px rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
               >
-                Evaluation
+                {isZh ? '评测详情' : 'Evaluation'}
               </TabsTrigger>
             )}
             {hasMessagesData && (
@@ -407,7 +420,7 @@ export default function EvalOutputPromptDialog({
                 value="messages"
                 className="-mb-px rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
               >
-                Messages
+                {isZh ? '消息历史' : 'Messages'}
               </TabsTrigger>
             )}
             {hasMetadata && (
@@ -415,7 +428,7 @@ export default function EvalOutputPromptDialog({
                 value="metadata"
                 className="-mb-px rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
               >
-                Metadata
+                {isZh ? '元数据' : 'Metadata'}
               </TabsTrigger>
             )}
             {hasTracesData && (
@@ -423,7 +436,7 @@ export default function EvalOutputPromptDialog({
                 value="traces"
                 className="-mb-px rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
               >
-                Traces
+                {isZh ? '追踪链路' : 'Traces'}
               </TabsTrigger>
             )}
           </TabsList>

@@ -1,4 +1,5 @@
 import { Alert, AlertContent, AlertDescription } from '@app/components/ui/alert';
+import { useTranslation } from '@app/i18n';
 import { AlertCircle } from 'lucide-react';
 import { ErrorBoundary } from 'react-error-boundary';
 import TraceView, { type Trace } from '../../../components/traces/TraceView';
@@ -18,19 +19,23 @@ export function DebuggingPanel({
   promptIndex,
   traces = [],
 }: DebuggingPanelProps) {
+  const { isZh } = useTranslation();
+
   return (
     <div>
       {evaluationId && (
         <div className="mb-4">
           <h4 className="mb-2 font-medium" aria-label="Trace Timeline">
-            Trace Timeline
+            {isZh ? '追踪时间线' : 'Trace Timeline'}
           </h4>
           <ErrorBoundary
             fallback={
               <Alert variant="destructive">
                 <AlertCircle className="size-4" />
                 <AlertContent>
-                  <AlertDescription>Error loading traces</AlertDescription>
+                  <AlertDescription>
+                    {isZh ? '加载追踪数据失败' : 'Error loading traces'}
+                  </AlertDescription>
                 </AlertContent>
               </Alert>
             }

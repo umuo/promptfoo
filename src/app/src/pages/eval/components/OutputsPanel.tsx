@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useTranslation } from '@app/i18n';
 import Citations from './Citations';
 
 import type { Citation } from './Citations';
@@ -44,9 +45,16 @@ export function OutputsPanel({
   CodeDisplay,
   citations,
 }: OutputsPanelProps) {
+  const { isZh } = useTranslation();
   // Use providerPrompt if available, fall back to redteamFinalPrompt for backward compat
   const actualPrompt = providerPrompt || redteamFinalPrompt;
-  const promptTitle = providerPrompt ? 'Actual Prompt Sent' : 'Modified User Input (Red Team)';
+  const promptTitle = providerPrompt
+    ? isZh
+      ? '实际发送的提示词'
+      : 'Actual Prompt Sent'
+    : isZh
+      ? '修改后的用户输入 (红队测试)'
+      : 'Modified User Input (Red Team)';
   const promptKey = providerPrompt ? 'providerPrompt' : 'redteamFinalPrompt';
 
   return (
@@ -65,7 +73,7 @@ export function OutputsPanel({
       {replayOutput && (
         <CodeDisplay
           content={replayOutput}
-          title="Replay Output"
+          title={isZh ? '重试运行输出' : 'Replay Output'}
           onCopy={() => onCopy('replayOutput', replayOutput)}
           copied={copiedFields['replayOutput'] || false}
           onMouseEnter={() => onMouseEnter('replayOutput')}
@@ -76,7 +84,7 @@ export function OutputsPanel({
       {output && (
         <CodeDisplay
           content={output}
-          title="Original Output"
+          title={isZh ? '原始输出' : 'Original Output'}
           onCopy={() => onCopy('output', output)}
           copied={copiedFields['output'] || false}
           onMouseEnter={() => onMouseEnter('output')}

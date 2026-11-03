@@ -3,6 +3,7 @@ import React, { useCallback, useId, useMemo } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import useCloudConfig from '@app/hooks/useCloudConfig';
 import { useShiftKey } from '@app/hooks/useShiftKey';
+import { useTranslation } from '@app/i18n';
 import { formatDuration } from '@app/utils/date';
 import { fetchTraces, replayEvaluation } from '@app/utils/evalOperations';
 import {
@@ -1076,8 +1077,21 @@ function renderOutputActions({
   handlePromptClose: () => void;
   setActionsHovered: (hovered: boolean) => void;
 }): React.ReactNode {
-  const passActionLabel = isRedteam ? 'Mark as safe' : 'Mark test passed';
-  const failActionLabel = isRedteam ? 'Mark as vulnerable' : 'Mark test failed';
+  const { isZh } = useTranslation();
+  const passActionLabel = isRedteam
+    ? isZh
+      ? '标记为安全/通过'
+      : 'Mark as safe'
+    : isZh
+      ? '标记测试通过'
+      : 'Mark test passed';
+  const failActionLabel = isRedteam
+    ? isZh
+      ? '标记为存在漏洞'
+      : 'Mark as vulnerable'
+    : isZh
+      ? '标记测试失败'
+      : 'Mark test failed';
 
   return (
     <div
@@ -1094,12 +1108,14 @@ function renderOutputActions({
                 className="action p-1 rounded hover:bg-muted transition-colors"
                 onClick={handleCopy}
                 onMouseDown={(e) => e.preventDefault()}
-                aria-label="Copy output to clipboard"
+                aria-label={isZh ? '复制输出到剪贴板' : 'Copy output to clipboard'}
               >
                 {copied ? <Check className="size-4" /> : <ClipboardCopy className="size-4" />}
               </button>
             </TooltipTrigger>
-            <TooltipContent>Copy output to clipboard</TooltipContent>
+            <TooltipContent>
+              {isZh ? '复制输出到剪贴板' : 'Copy output to clipboard'}
+            </TooltipContent>
           </Tooltip>
           <Tooltip disableHoverableContent>
             <TooltipTrigger asChild>
@@ -1108,12 +1124,12 @@ function renderOutputActions({
                 className="action p-1 rounded hover:bg-muted transition-colors"
                 onClick={handleRowShareLink}
                 onMouseDown={(e) => e.preventDefault()}
-                aria-label="Copy link to output"
+                aria-label={isZh ? '复制输出链接' : 'Copy link to output'}
               >
                 {linked ? <Check className="size-4" /> : <Link className="size-4" />}
               </button>
             </TooltipTrigger>
-            <TooltipContent>Copy link to output</TooltipContent>
+            <TooltipContent>{isZh ? '复制输出链接' : 'Copy link to output'}</TooltipContent>
           </Tooltip>
           <Tooltip disableHoverableContent>
             <TooltipTrigger asChild>
@@ -1122,7 +1138,7 @@ function renderOutputActions({
                 className={`action p-1 rounded hover:bg-muted transition-colors ${isHighlighted ? 'text-amber-500 dark:text-amber-400' : ''}`}
                 onClick={handleToggleHighlight}
                 onMouseDown={(e) => e.preventDefault()}
-                aria-label="Toggle test highlight"
+                aria-label={isZh ? '标记/取消高亮' : 'Toggle test highlight'}
               >
                 <Star
                   className={`size-4 ${isHighlighted ? 'stroke-amber-600 dark:stroke-amber-300' : ''}`}
@@ -1130,7 +1146,7 @@ function renderOutputActions({
                 />
               </button>
             </TooltipTrigger>
-            <TooltipContent>Toggle test highlight</TooltipContent>
+            <TooltipContent>{isZh ? '标记/取消高亮' : 'Toggle test highlight'}</TooltipContent>
           </Tooltip>
         </>
       )}
@@ -1153,7 +1169,9 @@ function renderOutputActions({
             )}
           </button>
         </TooltipTrigger>
-        <TooltipContent>{passActionLabel} (score 1.0)</TooltipContent>
+        <TooltipContent>
+          {passActionLabel} ({isZh ? '得分' : 'score'} 1.0)
+        </TooltipContent>
       </Tooltip>
       <Tooltip disableHoverableContent>
         <TooltipTrigger asChild>
@@ -1174,7 +1192,9 @@ function renderOutputActions({
             )}
           </button>
         </TooltipTrigger>
-        <TooltipContent>{failActionLabel} (score 0.0)</TooltipContent>
+        <TooltipContent>
+          {failActionLabel} ({isZh ? '得分' : 'score'} 0.0)
+        </TooltipContent>
       </Tooltip>
       <Tooltip disableHoverableContent>
         <TooltipTrigger asChild>
@@ -1182,12 +1202,12 @@ function renderOutputActions({
             type="button"
             className="action p-1 rounded hover:bg-muted transition-colors"
             onClick={handleSetScore}
-            aria-label="Set test score"
+            aria-label={isZh ? '设置测试得分' : 'Set test score'}
           >
             <Hash className="size-4" />
           </button>
         </TooltipTrigger>
-        <TooltipContent>Set test score</TooltipContent>
+        <TooltipContent>{isZh ? '设置测试得分' : 'Set test score'}</TooltipContent>
       </Tooltip>
       <Tooltip disableHoverableContent>
         <TooltipTrigger asChild>
@@ -1195,12 +1215,12 @@ function renderOutputActions({
             type="button"
             className="action p-1 rounded hover:bg-muted transition-colors"
             onClick={handleCommentOpen}
-            aria-label="Edit comment"
+            aria-label={isZh ? '编辑备注' : 'Edit comment'}
           >
             <Pencil className="size-4" />
           </button>
         </TooltipTrigger>
-        <TooltipContent>Edit comment</TooltipContent>
+        <TooltipContent>{isZh ? '编辑备注' : 'Edit comment'}</TooltipContent>
       </Tooltip>
       {output.prompt && (
         <>
@@ -1210,12 +1230,14 @@ function renderOutputActions({
                 type="button"
                 className="action p-1 rounded hover:bg-muted transition-colors"
                 onClick={handlePromptOpen}
-                aria-label="View output and test details"
+                aria-label={isZh ? '查看输出与测试详情' : 'View output and test details'}
               >
                 <Search className="size-4" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>View output and test details</TooltipContent>
+            <TooltipContent>
+              {isZh ? '查看输出与测试详情' : 'View output and test details'}
+            </TooltipContent>
           </Tooltip>
           {openPrompt && (
             <EvalOutputPromptDialog

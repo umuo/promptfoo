@@ -11,6 +11,8 @@ import { useState } from 'react';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { useCustomPoliciesMap } from '@app/hooks/useCustomPoliciesMap';
+import { useTranslation } from '@app/i18n';
+import { getPluginDisplayName } from '@app/utils/redteamTranslations';
 import { ExternalLink } from 'lucide-react';
 import useCloudConfig from '../../../hooks/useCloudConfig';
 import { useApplyFilterFromMetric } from './hooks';
@@ -75,6 +77,7 @@ const CustomMetrics = ({
     return null;
   }
 
+  const { isZh } = useTranslation();
   const applyFilterFromMetric = useApplyFilterFromMetric();
   const { data: cloudConfig } = useCloudConfig();
   const { config } = useTableStore();
@@ -91,10 +94,16 @@ const CustomMetrics = ({
   return (
     <div className="custom-metric-container my-2" data-testid="custom-metrics">
       {displayMetrics.map(([metric, score]) => {
-        let displayLabel: string = metric;
+        let displayLabel: string = isZh ? getPluginDisplayName(metric, true) : metric;
         let tooltipContent: React.ReactNode | null = null;
         const policyMetric = isPolicyMetric(metric);
-        const filterTargetLabel = policyMetric ? 'policy' : 'metric';
+        const filterTargetLabel = policyMetric
+          ? isZh
+            ? '策略'
+            : 'policy'
+          : isZh
+            ? '指标'
+            : 'metric';
         // Display a tooltip for policy metrics.
         if (policyMetric) {
           const policyId = deserializePolicyIdFromMetric(metric);
@@ -113,7 +122,9 @@ const CustomMetrics = ({
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-primary hover:underline"
                     >
-                      <span>View policy in Promptfoo Cloud</span>
+                      <span>
+                        {isZh ? '在 Promptfoo Cloud 中查看策略' : 'View policy in Promptfoo Cloud'}
+                      </span>
                       <ExternalLink className="size-3.5" />
                     </a>
                   </p>
@@ -134,7 +145,11 @@ const CustomMetrics = ({
                 <button
                   type="button"
                   className="metric-content"
-                  aria-label={`Filter by ${filterTargetLabel} ${displayLabel}`}
+                  aria-label={
+                    isZh
+                      ? `按${filterTargetLabel} ${displayLabel} 筛选`
+                      : `Filter by ${filterTargetLabel} ${displayLabel}`
+                  }
                   onClick={() => handleClick(metric)}
                 >
                   <span data-testid={`metric-name-${metric}`} className="metric-name">
@@ -153,7 +168,11 @@ const CustomMetrics = ({
               <TooltipContent side="top">
                 <div className="space-y-2 max-w-[400px]">
                   {tooltipContent}
-                  <p className="text-sm font-medium">Click to filter by this {filterTargetLabel}</p>
+                  <p className="text-sm font-medium">
+                    {isZh
+                      ? `点击按此${filterTargetLabel}进行筛选`
+                      : `Click to filter by this ${filterTargetLabel}`}
+                  </p>
                 </div>
               </TooltipContent>
             </Tooltip>
@@ -168,7 +187,13 @@ const CustomMetrics = ({
           onClick={onShowMore ?? (() => setShowAllMetrics(!showAllMetrics))}
           aria-expanded={showAllMetrics}
         >
-          {showAllMetrics ? 'Show less...' : 'Show more...'}
+          {showAllMetrics
+            ? isZh
+              ? '收起...'
+              : 'Show less...'
+            : isZh
+              ? '展开更多...'
+              : 'Show more...'}
         </button>
       )}
     </div>

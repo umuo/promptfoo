@@ -1,5 +1,6 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { HIDDEN_METADATA_KEYS } from '@app/constants';
+import { useTranslation } from '@app/i18n';
 import { isValidUrl } from '@app/utils/isValidUrl';
 import {
   determinePolicyTypeFromId,
@@ -36,6 +37,7 @@ export function MetadataPanel({
   onApplyFilter,
   cloudConfig,
 }: MetadataPanelProps) {
+  const { isZh } = useTranslation();
   if (!metadata) {
     return null;
   }
@@ -53,8 +55,10 @@ export function MetadataPanel({
       <table className="w-full text-sm table-fixed">
         <thead>
           <tr className="border-b border-border bg-muted/30">
-            <th className="w-1/4 p-2 text-left font-semibold">Key</th>
-            <th className="w-[calc(75%-80px)] p-2 text-left font-semibold">Value</th>
+            <th className="w-1/4 p-2 text-left font-semibold">{isZh ? '键' : 'Key'}</th>
+            <th className="w-[calc(75%-80px)] p-2 text-left font-semibold">
+              {isZh ? '值' : 'Value'}
+            </th>
             <th className="w-20 p-2" />
           </tr>
         </thead>
@@ -83,7 +87,11 @@ export function MetadataPanel({
                             className="flex items-center gap-1 text-primary hover:underline"
                             data-testid="pf-cloud-policy-detail-link"
                           >
-                            <span>View policy in Promptfoo Cloud</span>
+                            <span>
+                              {isZh
+                                ? '在 Promptfoo Cloud 中查看策略'
+                                : 'View policy in Promptfoo Cloud'}
+                            </span>
                             <ExternalLink className="size-3.5" />
                           </a>
                         )}
@@ -142,7 +150,7 @@ export function MetadataPanel({
                           )}
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent>Copy value</TooltipContent>
+                      <TooltipContent>{isZh ? '复制值' : 'Copy value'}</TooltipContent>
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -155,7 +163,11 @@ export function MetadataPanel({
                           <SlidersHorizontal className="size-4" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent>Filter by value (replaces existing filters)</TooltipContent>
+                      <TooltipContent>
+                        {isZh
+                          ? '按此值筛选 (替换现有筛选)'
+                          : 'Filter by value (replaces existing filters)'}
+                      </TooltipContent>
                     </Tooltip>
                   </div>
                 </td>

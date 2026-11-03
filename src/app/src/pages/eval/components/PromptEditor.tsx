@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@app/components/ui/tooltip';
+import { useTranslation } from '@app/i18n';
 import { Pencil, Play } from 'lucide-react';
 
 interface CodeDisplayProps {
@@ -64,11 +65,13 @@ export function PromptEditor({
   subtitleTypographyClassName,
   readOnly = false,
 }: PromptEditorProps) {
+  const { isZh } = useTranslation();
+
   return (
     <TooltipProvider>
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h4 className={subtitleTypographyClassName}>Prompt</h4>
+          <h4 className={subtitleTypographyClassName}>{isZh ? '提示词' : 'Prompt'}</h4>
           <div className="flex gap-2">
             {!readOnly && !editMode && (
               <Tooltip>
@@ -78,12 +81,12 @@ export function PromptEditor({
                     size="icon"
                     onClick={() => onEditModeChange(true)}
                     className="size-8 text-muted-foreground hover:text-primary"
-                    aria-label="Edit & Replay"
+                    aria-label={isZh ? '编辑并重试' : 'Edit & Replay'}
                   >
                     <Pencil className="size-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Edit & Replay</TooltipContent>
+                <TooltipContent>{isZh ? '编辑并重试' : 'Edit & Replay'}</TooltipContent>
               </Tooltip>
             )}
             {!readOnly && editMode && (
@@ -98,7 +101,7 @@ export function PromptEditor({
                   ) : (
                     <Play className="size-4 mr-2" />
                   )}
-                  Replay
+                  {isZh ? '重新运行' : 'Replay'}
                 </Button>
                 <Button
                   variant="outline"
@@ -109,7 +112,7 @@ export function PromptEditor({
                     onPromptChange(prompt);
                   }}
                 >
-                  Cancel
+                  {isZh ? '取消' : 'Cancel'}
                 </Button>
               </>
             )}

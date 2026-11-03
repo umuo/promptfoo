@@ -6,7 +6,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@app/components/ui/collapsible';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
+import { getPluginDisplayName } from '@app/utils/redteamTranslations';
 import { Check, ChevronDown, CircleCheck, CircleX, Copy, CornerDownRight } from 'lucide-react';
 import { ellipsize } from '../../../../../util/text';
 import type { Assertion, GradingResult } from '@promptfoo/types';
@@ -256,6 +258,7 @@ function formatGraderOutputLabel(key: string, totalOutputs: number): string {
 }
 
 function AssertionResults({ gradingResults }: { gradingResults?: GradingResult[] }) {
+  const { isZh } = useTranslation();
   const [expandedValues, setExpandedValues] = useState<{ [key: string]: boolean }>({});
   const [copiedAssertions, setCopiedAssertions] = useState<{ [key: string]: boolean }>({});
   const [hoveredAssertion, setHoveredAssertion] = useState<string | null>(null);
@@ -303,12 +306,14 @@ function AssertionResults({ gradingResults }: { gradingResults?: GradingResult[]
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            {hasMetrics && <th className="px-4 py-3 text-left font-semibold">Metric</th>}
-            <th className="px-4 py-3 text-left font-semibold">Pass</th>
-            <th className="px-4 py-3 text-left font-semibold">Score</th>
-            <th className="px-4 py-3 text-left font-semibold">Type</th>
-            <th className="px-4 py-3 text-left font-semibold">Value</th>
-            <th className="px-4 py-3 text-left font-semibold">Reason</th>
+            {hasMetrics && (
+              <th className="px-4 py-3 text-left font-semibold">{isZh ? '指标' : 'Metric'}</th>
+            )}
+            <th className="px-4 py-3 text-left font-semibold">{isZh ? '判定' : 'Pass'}</th>
+            <th className="px-4 py-3 text-left font-semibold">{isZh ? '得分' : 'Score'}</th>
+            <th className="px-4 py-3 text-left font-semibold">{isZh ? '类型' : 'Type'}</th>
+            <th className="px-4 py-3 text-left font-semibold">{isZh ? '预期值' : 'Value'}</th>
+            <th className="px-4 py-3 text-left font-semibold">{isZh ? '判定依据' : 'Reason'}</th>
           </tr>
         </thead>
         <tbody>
@@ -337,7 +342,11 @@ function AssertionResults({ gradingResults }: { gradingResults?: GradingResult[]
                   hasChildren && 'bg-muted/20',
                 )}
               >
-                {hasMetrics && <td className="px-4 py-3">{metric}</td>}
+                {hasMetrics && (
+                  <td className="px-4 py-3">
+                    {isZh ? getPluginDisplayName(metric, true) : metric}
+                  </td>
+                )}
                 <td className="px-4 py-3">
                   {result.pass ? (
                     <CircleCheck className="size-5 text-emerald-600 dark:text-emerald-400" />
@@ -373,7 +382,7 @@ function AssertionResults({ gradingResults }: { gradingResults?: GradingResult[]
                       <span className="break-words">{isExpanded ? value : truncatedValue}</span>
                       {templateValue && (
                         <div className="mt-1 text-xs text-muted-foreground">
-                          <span className="font-medium">Template:</span>{' '}
+                          <span className="font-medium">{isZh ? '模板：' : 'Template:'}</span>{' '}
                           <span className="break-words">
                             {isExpanded ? templateValue : truncatedTemplateValue}
                           </span>
@@ -455,6 +464,7 @@ function formatGradingPrompt(prompt: string): string {
 }
 
 function GradingPromptSection({ gradingResults }: { gradingResults?: GradingResult[] }) {
+  const { isZh } = useTranslation();
   const promptsWithData = gradingResults?.filter((r) => r.metadata?.renderedGradingPrompt) || [];
   const [openItems, setOpenItems] = useState<{ [key: number]: boolean }>({});
 
@@ -468,14 +478,17 @@ function GradingPromptSection({ gradingResults }: { gradingResults?: GradingResu
 
   return (
     <div className="mt-4">
-      <h4 className="mb-2 text-sm font-medium">Grading Prompts</h4>
+      <h4 className="mb-2 text-sm font-medium">{isZh ? '评测裁判提示词' : 'Grading Prompts'}</h4>
       <div className="space-y-2">
         {promptsWithData.map((result, i) => (
           <Collapsible key={i} open={Boolean(openItems[i])} onOpenChange={() => toggleItem(i)}>
             <div className="rounded-lg border border-border">
               <CollapsibleTrigger asChild>
                 <button className="flex w-full items-center justify-between px-4 py-3 text-sm hover:bg-muted/50 transition-colors">
-                  <span>{result.assertion?.type || 'Assertion'} - Full Grading Prompt</span>
+                  <span>
+                    {result.assertion?.type || (isZh ? '断言' : 'Assertion')} -{' '}
+                    {isZh ? '完整裁判提示词' : 'Full Grading Prompt'}
+                  </span>
                   <ChevronDown
                     className={cn(
                       'size-4 text-muted-foreground transition-transform',
