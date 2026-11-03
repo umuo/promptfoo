@@ -14,6 +14,7 @@ import { Spinner } from '@app/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { EVAL_ROUTES, ROUTES } from '@app/constants/routes';
 import { useToast } from '@app/hooks/useToast';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { callApi } from '@app/utils/api';
 import { formatDuration } from '@app/utils/date';
@@ -1123,6 +1124,7 @@ function PromptColumnHeader({
   setFilterMode: (mode: EvalResultsFilterMode) => void;
   setCustomMetricsDialogOpen: (open: boolean) => void;
 }) {
+  const { isZh } = useTranslation();
   const columnId = `Prompt ${idx + 1}`;
   const { total: metrics, filtered: filteredMetrics } = getMetrics(idx);
 
@@ -1142,20 +1144,27 @@ function PromptColumnHeader({
           <div className={getPassRateClassName(passRates[idx])}>
             {passRates[idx]?.filtered === null ? (
               <>
-                <strong>{passRates[idx]?.total?.toFixed(2) ?? '0.00'}% passing</strong> (
-                {passingTestCounts[idx]?.total}/{testCounts[idx]?.total} cases)
+                <strong>
+                  {passRates[idx]?.total?.toFixed(2) ?? '0.00'}% {isZh ? '通过' : 'passing'}
+                </strong>{' '}
+                ({passingTestCounts[idx]?.total}/{testCounts[idx]?.total} {isZh ? '用例' : 'cases'})
               </>
             ) : (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span>
-                    <strong>{passRates[idx]?.filtered?.toFixed(2)}% passing</strong> (
-                    {passingTestCounts[idx]?.filtered}/{testCounts[idx]?.filtered} filtered,{' '}
-                    {passingTestCounts[idx]?.total}/{testCounts[idx]?.total} total)
+                    <strong>
+                      {passRates[idx]?.filtered?.toFixed(2)}% {isZh ? '通过' : 'passing'}
+                    </strong>{' '}
+                    ({passingTestCounts[idx]?.filtered}/{testCounts[idx]?.filtered}{' '}
+                    {isZh ? '已筛选' : 'filtered'}, {passingTestCounts[idx]?.total}/
+                    {testCounts[idx]?.total} {isZh ? '总计' : 'total'})
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {`Filtered: ${passingTestCounts[idx]?.filtered}/${testCounts[idx]?.filtered} passing (${passRates[idx]?.filtered?.toFixed(2)}%). Total: ${passingTestCounts[idx]?.total}/${testCounts[idx]?.total} passing (${passRates[idx]?.total?.toFixed(2)}%)`}
+                  {isZh
+                    ? `筛选结果: ${passingTestCounts[idx]?.filtered}/${testCounts[idx]?.filtered} 通过 (${passRates[idx]?.filtered?.toFixed(2)}%)。总计: ${passingTestCounts[idx]?.total}/${testCounts[idx]?.total} 通过 (${passRates[idx]?.total?.toFixed(2)}%)`
+                    : `Filtered: ${passingTestCounts[idx]?.filtered}/${testCounts[idx]?.filtered} passing (${passRates[idx]?.filtered?.toFixed(2)}%). Total: ${passingTestCounts[idx]?.total}/${testCounts[idx]?.total} passing (${passRates[idx]?.total?.toFixed(2)}%)`}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -1168,7 +1177,7 @@ function PromptColumnHeader({
             onClick={() => setFilterMode('errors')}
           >
             <div className="highlight fail">
-              <strong>Errors:</strong> {metrics?.testErrorCount || 0}
+              <strong>{isZh ? '错误:' : 'Errors:'}</strong> {metrics?.testErrorCount || 0}
             </div>
           </button>
         ) : null}
@@ -1641,6 +1650,7 @@ function ResultsTable({
   const { setFilterMode } = useFilterMode();
 
   const { showToast } = useToast();
+  const { isZh } = useTranslation();
   const navigate = useNavigate();
   const locationHash = useEvalDetailsHash();
 
@@ -2023,7 +2033,7 @@ function ResultsTable({
       return [
         columnHelper.group({
           id: 'vars',
-          header: () => <span className="font-bold">Variables</span>,
+          header: () => <span className="font-bold">{isZh ? '变量' : 'Variables'}</span>,
           columns: head.vars.map((varName, idx) =>
             columnHelper.accessor((row: EvaluateTableRow) => row.vars[idx], {
               id: `Variable ${idx + 1}`,
@@ -2069,7 +2079,7 @@ function ResultsTable({
     return [
       columnHelper.group({
         id: 'transformDisplayVars',
-        header: () => <span className="font-bold">Variables</span>,
+        header: () => <span className="font-bold">{isZh ? '变量' : 'Variables'}</span>,
         columns: transformDisplayVarKeys.map((varName) =>
           columnHelper.accessor(
             (row: EvaluateTableRow) => {
@@ -2103,7 +2113,7 @@ function ResultsTable({
         ),
       }),
     ];
-  }, [columnHelper, maxTextLength, transformDisplayVarColumnSizes, transformDisplayVarKeys]);
+  }, [columnHelper, maxTextLength, transformDisplayVarColumnSizes, transformDisplayVarKeys, isZh]);
 
   const getOutput = React.useCallback(
     (rowIndex: number, promptIndex: number) => {
@@ -2124,7 +2134,7 @@ function ResultsTable({
     return [
       columnHelper.group({
         id: 'prompts',
-        header: () => <span className="font-bold">Outputs</span>,
+        header: () => <span className="font-bold">{isZh ? '输出' : 'Outputs'}</span>,
         columns: head.prompts.map((prompt, idx) =>
           columnHelper.accessor((row: EvaluateTableRow) => formatRowOutput(row.outputs[idx]), {
             id: `Prompt ${idx + 1}`,

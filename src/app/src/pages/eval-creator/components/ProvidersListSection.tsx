@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@app/components/ui/dialog';
+import { useTranslation } from '@app/i18n';
 import { Plus, Settings, Trash2 } from 'lucide-react';
 import AddProviderDialog from './AddProviderDialog';
 import type { ProviderOptions } from '@promptfoo/types';
@@ -74,6 +75,7 @@ function getProviderType(provider: ProviderOptions): string {
 }
 
 export function ProvidersListSection({ providers, onChange }: ProvidersListSectionProps) {
+  const { isZh } = useTranslation();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [providerToDelete, setProviderToDelete] = useState<number | null>(null);
@@ -157,12 +159,16 @@ export function ProvidersListSection({ providers, onChange }: ProvidersListSecti
         <div className="space-y-4">
           <Button onClick={() => setIsAddDialogOpen(true)} className="w-full" variant="outline">
             <Plus className="size-4 mr-2" />
-            Add Provider
+            {isZh ? '添加模型提供商' : 'Add Provider'}
           </Button>
           <Card className="p-8 text-center bg-muted/30 border-dashed">
-            <p className="text-sm text-muted-foreground mb-4">No providers configured yet.</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              {isZh ? '暂未配置模型提供商。' : 'No providers configured yet.'}
+            </p>
             <p className="text-xs text-muted-foreground">
-              Add AI models, HTTP endpoints, Python scripts, or other providers to evaluate.
+              {isZh
+                ? '添加 AI 大模型、HTTP 接口、Python 脚本或其他被测系统以开始评测。'
+                : 'Add AI models, HTTP endpoints, Python scripts, or other providers to evaluate.'}
             </p>
           </Card>
         </div>
@@ -172,7 +178,7 @@ export function ProvidersListSection({ providers, onChange }: ProvidersListSecti
       {providers.length > 0 && (
         <Button onClick={() => setIsAddDialogOpen(true)} className="w-full" variant="outline">
           <Plus className="size-4 mr-2" />
-          Add Provider
+          {isZh ? '添加模型提供商' : 'Add Provider'}
         </Button>
       )}
 
@@ -199,17 +205,19 @@ export function ProvidersListSection({ providers, onChange }: ProvidersListSecti
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete provider?</DialogTitle>
+            <DialogTitle>{isZh ? '删除提供商？' : 'Delete provider?'}</DialogTitle>
             <DialogDescription>
-              This removes the provider from this evaluation. This action cannot be undone.
+              {isZh
+                ? '此操作将从当前评测中移除该模型提供商，且无法撤销。'
+                : 'This removes the provider from this evaluation. This action cannot be undone.'}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={cancelDeleteProvider}>
-              Cancel
+              {isZh ? '取消' : 'Cancel'}
             </Button>
             <Button variant="destructive" onClick={confirmDeleteProvider}>
-              Delete
+              {isZh ? '删除' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -220,6 +220,26 @@ export const PLUGIN_DISPLAY_NAMES_ZH: Record<string, string> = {
   vlsu: 'VLSU 组合安全数据集',
   xstest: 'XSTest 过度防御数据集',
   pliny: 'Pliny 攻击数据集',
+
+  // Common Metric Display Names (from evaluations / redteam table metrics)
+  Hallucination: '事实幻觉与虚假信息',
+  PoliticalStatement: '政治言论偏向',
+  'political-statement': '政治言论偏向',
+  'Requests containing profanity': '粗俗不雅言论',
+  Cybercrime: '网络犯罪与网络黑产',
+  ExcessiveAgency: '过度代理越权 (Excessive Agency)',
+  'Graphic Content': '血腥暴恐画面内容',
+  'Intellectual Property violation': '知识产权侵犯',
+  'Privacy violations': '隐私侵犯与敏感数据嗅探',
+  Competitors: '未授权竞品宣传',
+  Contracts: '越权合同承诺',
+  'Debug Access': '调试接口暴露',
+  'Indirect Prompt Injection': '间接提示词注入',
+  'Prompt Injection': '直接提示词注入',
+  'Shell Injection': 'Shell 命令注入',
+  'SQL Injection': 'SQL 注入攻击',
+  SSRF: '服务器端请求伪造 (SSRF)',
+  'System Prompt Extraction': '系统提示词嗅探窃取',
 };
 
 /**
@@ -272,6 +292,17 @@ export function getPluginDisplayName(plugin: string, isZh?: boolean): string {
   if (isZh) {
     if (PLUGIN_DISPLAY_NAMES_ZH[plugin]) {
       return PLUGIN_DISPLAY_NAMES_ZH[plugin];
+    }
+    const lower = plugin.toLowerCase();
+    if (PLUGIN_DISPLAY_NAMES_ZH[lower]) {
+      return PLUGIN_DISPLAY_NAMES_ZH[lower];
+    }
+    const kebab = plugin.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    if (PLUGIN_DISPLAY_NAMES_ZH[kebab]) {
+      return PLUGIN_DISPLAY_NAMES_ZH[kebab];
+    }
+    if (PLUGIN_DISPLAY_NAMES_ZH[`harmful:${kebab}`]) {
+      return PLUGIN_DISPLAY_NAMES_ZH[`harmful:${kebab}`];
     }
     const mappedKey = categoryAliasesReverse[plugin as keyof typeof categoryAliases];
     if (mappedKey && PLUGIN_DISPLAY_NAMES_ZH[mappedKey]) {

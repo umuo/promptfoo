@@ -56,7 +56,7 @@ export default function EvalHeader({
   children,
   contentClassName,
 }: EvalHeaderProps) {
-  const { t } = useTranslation();
+  const { t, isZh } = useTranslation();
   const { showToast } = useToast();
 
   const { evalId, author, config, totalResultsCount, stats, table, setAuthor } = useTableStore();
@@ -86,12 +86,12 @@ export default function EvalHeader({
     if (!currentEvalData?.createdAt) {
       return null;
     }
-    return new Date(currentEvalData.createdAt).toLocaleDateString('en-US', {
-      month: 'short',
+    return new Date(currentEvalData.createdAt).toLocaleDateString(isZh ? 'zh-CN' : 'en-US', {
+      month: isZh ? 'long' : 'short',
       day: 'numeric',
       year: 'numeric',
     });
-  }, [currentEvalData?.createdAt]);
+  }, [currentEvalData?.createdAt, isZh]);
 
   const uniqueProviderCount = React.useMemo(
     () => new Set(head.prompts.map((p) => p.provider)).size,
@@ -137,7 +137,7 @@ export default function EvalHeader({
               <BreadcrumbList className="flex-nowrap">
                 <BreadcrumbItem className="shrink-0">
                   <BreadcrumbLink asChild>
-                    <Link to={EVAL_ROUTES.LIST}>Evals</Link>
+                    <Link to={EVAL_ROUTES.LIST}>{isZh ? '评测列表' : 'Evals'}</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="shrink-0" />

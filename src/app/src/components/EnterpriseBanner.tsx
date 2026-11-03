@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { Alert, AlertContent, AlertDescription } from '@app/components/ui/alert';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { callApi } from '@app/utils/api';
 import { Info } from 'lucide-react';
@@ -15,6 +16,7 @@ interface EnterpriseBannerProps {
  * Displays only when in redteam mode and when user is not logged into cloud
  */
 const EnterpriseBanner = ({ evalId, className }: EnterpriseBannerProps) => {
+  const { isZh } = useTranslation();
   const [isCloudEnabled, setIsCloudEnabled] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -56,17 +58,35 @@ const EnterpriseBanner = ({ evalId, className }: EnterpriseBannerProps) => {
       <Info className="size-4" />
       <AlertContent>
         <AlertDescription>
-          You're using the community edition of Promptfoo's red teaming suite. For advanced
-          capabilities and support, learn more about{' '}
-          <a
-            href="https://www.promptfoo.dev/docs/enterprise/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold underline text-primary hover:text-primary/80"
-          >
-            Promptfoo Enterprise
-          </a>
-          .
+          {isZh ? (
+            <>
+              您当前使用的是 Promptfoo
+              红队测试套件社区版。如需更高级的企业级功能与专属技术支持，请了解{' '}
+              <a
+                href="https://www.promptfoo.dev/docs/enterprise/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold underline text-primary hover:text-primary/80"
+              >
+                Promptfoo Enterprise 企业版
+              </a>
+              。
+            </>
+          ) : (
+            <>
+              You're using the community edition of Promptfoo's red teaming suite. For advanced
+              capabilities and support, learn more about{' '}
+              <a
+                href="https://www.promptfoo.dev/docs/enterprise/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold underline text-primary hover:text-primary/80"
+              >
+                Promptfoo Enterprise
+              </a>
+              .
+            </>
+          )}
         </AlertDescription>
       </AlertContent>
     </Alert>

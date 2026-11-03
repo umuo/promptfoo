@@ -5,6 +5,7 @@ import { Button } from '@app/components/ui/button';
 import { Card, CardContent } from '@app/components/ui/card';
 import { AddIcon, HistoryIcon, SecurityIcon } from '@app/components/ui/icons';
 import { MODEL_AUDIT_ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { callApi } from '@app/utils/api';
 import { Link as RouterLink } from 'react-router';
 import { LatestScanSkeleton } from '../model-audit/components/ModelAuditSkeleton';
@@ -18,6 +19,7 @@ import { hasModelAuditFindings } from '../model-audit/utils';
 import type { HistoricalScan } from '../model-audit/stores';
 
 export default function ModelAuditResultLatestPage() {
+  const { isZh } = useTranslation();
   const [latestScan, setLatestScan] = useState<HistoricalScan | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,9 +97,13 @@ export default function ModelAuditResultLatestPage() {
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-8">
         <div className="container max-w-2xl mx-auto px-4">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold">Unable to load latest scan</h1>
+            <h1 className="text-xl font-semibold">
+              {isZh ? '无法加载最新扫描' : 'Unable to load latest scan'}
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              We could not fetch the most recent result. Try again, or start a new scan from setup.
+              {isZh
+                ? '无法获取最新结果。请重试，或从配置页面发起新扫描。'
+                : 'We could not fetch the most recent result. Try again, or start a new scan from setup.'}
             </p>
           </div>
           <Alert variant="destructive" className="mb-6">
@@ -107,15 +113,17 @@ export default function ModelAuditResultLatestPage() {
           </Alert>
           <div className="flex flex-wrap gap-3">
             <Button type="button" onClick={fetchLatestScan}>
-              Try Again
+              {isZh ? '重试' : 'Try Again'}
             </Button>
             <Button asChild>
               <RouterLink to={MODEL_AUDIT_ROUTES.SETUP} onClick={startNewScan}>
-                Go to Setup
+                {isZh ? '前往配置' : 'Go to Setup'}
               </RouterLink>
             </Button>
             <Button variant="outline" asChild>
-              <RouterLink to={MODEL_AUDIT_ROUTES.LIST}>View History</RouterLink>
+              <RouterLink to={MODEL_AUDIT_ROUTES.LIST}>
+                {isZh ? '查看历史' : 'View History'}
+              </RouterLink>
             </Button>
           </div>
         </div>
@@ -131,26 +139,31 @@ export default function ModelAuditResultLatestPage() {
           <Card className="text-center bg-white dark:bg-zinc-900">
             <CardContent className="py-12">
               <SecurityIcon className="size-16 text-primary mx-auto mb-6" />
-              <h1 className="text-2xl font-bold mb-2">No Model Scans Yet</h1>
+              <h1 className="text-2xl font-bold mb-2">
+                {isZh ? '暂无模型安全扫描' : 'No Model Scans Yet'}
+              </h1>
               <p className="text-muted-foreground mb-4">
-                Run your first security scan to detect vulnerabilities in ML models.
+                {isZh
+                  ? '运行您的首次模型安全扫描，检测机器学习模型中的安全风险与漏洞。'
+                  : 'Run your first security scan to detect vulnerabilities in ML models.'}
               </p>
               <p className="text-sm text-muted-foreground mb-8">
-                Model Audit scans models for security issues like pickle exploits, unsafe
-                deserialization, and malicious code injection.{' '}
+                {isZh
+                  ? '模型安全审计会扫描模型文件中的安全风险，如 Pickle 代码执行、不安全的反序列化以及恶意代码注入等。'
+                  : 'Model Audit scans models for security issues like pickle exploits, unsafe deserialization, and malicious code injection.'}{' '}
                 <a
                   href="https://www.promptfoo.dev/docs/model-audit/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary underline underline-offset-2 hover:no-underline"
                 >
-                  Learn more
+                  {isZh ? '了解更多' : 'Learn more'}
                 </a>
               </p>
               <Button size="lg" asChild>
                 <RouterLink to={MODEL_AUDIT_ROUTES.SETUP} onClick={startNewScan}>
                   <AddIcon className="size-4 mr-2" />
-                  Run Your First Scan
+                  {isZh ? '运行首次扫描' : 'Run Your First Scan'}
                 </RouterLink>
               </Button>
             </CardContent>
@@ -163,7 +176,7 @@ export default function ModelAuditResultLatestPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <ScanResultHeader
-        name={latestScan.name || 'Latest Scan Results'}
+        name={latestScan.name || (isZh ? '最新扫描结果' : 'Latest Scan Results')}
         modelPath={latestScan.modelPath}
         createdAt={new Date(latestScan.createdAt).toISOString()}
         severityCounts={severityCounts}
@@ -178,13 +191,13 @@ export default function ModelAuditResultLatestPage() {
           <Button variant="outline" size="sm" asChild>
             <RouterLink to={MODEL_AUDIT_ROUTES.LIST}>
               <HistoryIcon className="size-4 mr-2" />
-              History
+              {isZh ? '历史记录' : 'History'}
             </RouterLink>
           </Button>
           <Button size="sm" asChild>
             <RouterLink to={MODEL_AUDIT_ROUTES.SETUP} onClick={startNewScan}>
               <AddIcon className="size-4 mr-2" />
-              New Scan
+              {isZh ? '新建扫描' : 'New Scan'}
             </RouterLink>
           </Button>
         </div>

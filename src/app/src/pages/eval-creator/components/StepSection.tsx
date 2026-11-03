@@ -1,5 +1,7 @@
 import { useId } from 'react';
 
+import { useTranslation } from '@app/i18n';
+
 interface StepSectionProps {
   stepNumber: number;
   title: string;
@@ -21,6 +23,7 @@ export function StepSection({
   guidance,
   children,
 }: StepSectionProps) {
+  const { isZh } = useTranslation();
   const titleId = useId();
 
   return (
@@ -28,13 +31,21 @@ export function StepSection({
       {/* Header */}
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <span>Step {stepNumber}</span>
+          <span>{isZh ? `步骤 ${stepNumber}` : `Step ${stepNumber}`}</span>
           <span aria-hidden="true">/</span>
-          <span>{isRequired ? 'Required' : 'Optional'}</span>
+          <span>{isRequired ? (isZh ? '必填' : 'Required') : isZh ? '可选' : 'Optional'}</span>
           {isComplete && (
             <>
               <span aria-hidden="true">/</span>
-              <span>{count === undefined ? 'Configured' : `${count} configured`}</span>
+              <span>
+                {count === undefined
+                  ? isZh
+                    ? '已配置'
+                    : 'Configured'
+                  : isZh
+                    ? `已配置 ${count} 个`
+                    : `${count} configured`}
+              </span>
             </>
           )}
         </div>

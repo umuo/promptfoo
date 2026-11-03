@@ -18,6 +18,10 @@ describe('redteamTranslations', () => {
     it('resolves metric names to Chinese translations via categoryAliasesReverse', () => {
       expect(getPluginDisplayName('BFLAEnforcement', true)).toBe('功能级权限绕过 (BFLA)');
       expect(getPluginDisplayName('AsciiSmuggling', true)).toBe('ASCII 隐写走私');
+      expect(getPluginDisplayName('PoliticalStatement', true)).toBe('政治言论偏向');
+      expect(getPluginDisplayName('Hallucination', true)).toBe('事实幻觉与虚假信息');
+      expect(getPluginDisplayName('Cybercrime', true)).toBe('网络犯罪与网络黑产');
+      expect(getPluginDisplayName('Requests containing profanity', true)).toBe('粗俗不雅言论');
     });
 
     it('returns fallback for unknown plugin keys', () => {

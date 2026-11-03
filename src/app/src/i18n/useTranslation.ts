@@ -10,5 +10,6 @@ export function useTranslation() {
     isZh,
     isEn,
     availableLanguages,
+    i18n: { language },
   };
 }

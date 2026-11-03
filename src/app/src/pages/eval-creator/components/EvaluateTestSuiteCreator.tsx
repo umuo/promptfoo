@@ -79,8 +79,7 @@ function ErrorFallback({
 }
 
 const EvaluateTestSuiteCreator = () => {
-  const { t, i18n } = useTranslation();
-  const isZh = i18n?.language?.startsWith('zh') ?? false;
+  const { t, isZh } = useTranslation();
   const { showToast } = useToast();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [hasCustomConfig, setHasCustomConfig] = useState(false);
@@ -470,37 +469,45 @@ const EvaluateTestSuiteCreator = () => {
                     guidance={
                       normalizedProviders.length === 0 ? (
                         <InfoBox variant="help">
-                          <strong>What are providers?</strong>
+                          <strong>{isZh ? '什么是模型提供商？' : 'What are providers?'}</strong>
                           <p className="mt-1">
-                            Providers are the systems you want to test. This can be:
+                            {isZh
+                              ? '提供商是您要测试的目标系统，可以包括：'
+                              : 'Providers are the systems you want to test. This can be:'}
                           </p>
                           <ul className="mt-2 space-y-1 list-disc list-inside ml-2">
                             <li>
-                              <strong>AI Models</strong> - OpenAI GPT, Anthropic Claude, Google
-                              Gemini, etc.
+                              <strong>{isZh ? 'AI 大模型' : 'AI Models'}</strong> - OpenAI GPT,
+                              Anthropic Claude, Google Gemini 等
                             </li>
                             <li>
-                              <strong>HTTP/WebSocket APIs</strong> - Your own API endpoints or
-                              third-party services
+                              <strong>{isZh ? 'HTTP/WebSocket API' : 'HTTP/WebSocket APIs'}</strong>{' '}
+                              - 您的自有 API 接口或第三方服务
                             </li>
                             <li>
-                              <strong>Python Scripts</strong> - Custom Python code or agent
-                              frameworks (LangChain, CrewAI, etc.)
+                              <strong>{isZh ? 'Python 脚本' : 'Python Scripts'}</strong> - 自定义
+                              Python 代码或智能体框架 (LangChain, CrewAI 等)
                             </li>
                             <li>
-                              <strong>JavaScript/Local Providers</strong> - Custom implementations
+                              <strong>
+                                {isZh ? 'JavaScript/本地提供商' : 'JavaScript/Local Providers'}
+                              </strong>{' '}
+                              - 自定义代码实现
                             </li>
                           </ul>
                           <p className="mt-2">
-                            <strong>Getting started:</strong> Select at least one provider below.
-                            You can compare multiple providers side-by-side.
+                            <strong>{isZh ? '快速上手：' : 'Getting started:'}</strong>{' '}
+                            {isZh
+                              ? '在下方添加至少一个提供商。您可以同时并排对比多个提供商。'
+                              : 'Select at least one provider below. You can compare multiple providers side-by-side.'}
                           </p>
                         </InfoBox>
                       ) : (
                         <InfoBox variant="subtle">
-                          <strong>Pro tip:</strong> Testing multiple providers helps you find the
-                          best option for your use case. Compare different models, API versions, or
-                          custom implementations to optimize for quality, cost, and latency.
+                          <strong>{isZh ? '专家建议：' : 'Pro tip:'}</strong>{' '}
+                          {isZh
+                            ? '同时测试多个提供商有助于为您的场景挑选最佳方案。对比不同模型、API 版本或自定义实现，综合评估质量、成本与响应延迟。'
+                            : 'Testing multiple providers helps you find the best option for your use case. Compare different models, API versions, or custom implementations to optimize for quality, cost, and latency.'}
                         </InfoBox>
                       )
                     }
@@ -535,30 +542,35 @@ const EvaluateTestSuiteCreator = () => {
                     guidance={
                       normalizedPrompts.length === 0 ? (
                         <InfoBox variant="help">
-                          <strong>What are prompts?</strong>
+                          <strong>{isZh ? '什么是提示词？' : 'What are prompts?'}</strong>
                           <p className="mt-1">
-                            Prompts are the inputs you send to your providers - whether that's
-                            instructions for AI models, API request bodies, or parameters for custom
-                            code.
+                            {isZh
+                              ? '提示词是您发送给被测系统的输入内容——无论是给 AI 模型的指令、API 请求体还是传给自定义代码的参数。'
+                              : "Prompts are the inputs you send to your providers - whether that's instructions for AI models, API request bodies, or parameters for custom code."}
                           </p>
                           <p className="mt-2">
-                            <strong>Using variables:</strong> Use{' '}
+                            <strong>{isZh ? '使用变量：' : 'Using variables:'}</strong>{' '}
+                            {isZh ? '使用 ' : 'Use '}
                             <code className="bg-muted px-1 py-0.5 rounded text-xs">
                               {'{{variable_name}}'}
                             </code>{' '}
-                            to create dynamic prompts. For example:{' '}
+                            {isZh
+                              ? '创建动态提示词。例如：'
+                              : 'to create dynamic prompts. For example:'}{' '}
                             <code className="bg-muted px-1 py-0.5 rounded text-xs">
-                              "Summarize this article: {'{{article}}'}"
+                              "{isZh ? '请总结这篇文章：' : 'Summarize this article: '}
+                              {'{{article}}'}"
                             </code>
                           </p>
                           <p className="mt-2">
-                            Variables are filled in with test case data, allowing you to test the
-                            same prompt with different inputs.
+                            {isZh
+                              ? '变量会被测试用例中的数据填充，让您能够用不同的输入测试相同的提示词。'
+                              : 'Variables are filled in with test case data, allowing you to test the same prompt with different inputs.'}
                           </p>
                         </InfoBox>
                       ) : varsList.length > 0 ? (
                         <InfoBox variant="info">
-                          <strong>Variables detected:</strong>{' '}
+                          <strong>{isZh ? '已检测到变量：' : 'Variables detected:'}</strong>{' '}
                           {varsList.map((v, i) => (
                             <span key={v}>
                               <code className="rounded border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-xs text-foreground">
@@ -568,17 +580,23 @@ const EvaluateTestSuiteCreator = () => {
                             </span>
                           ))}
                           <p className="mt-2">
-                            These variables will need values in your test cases below. Each test
-                            case should provide data for all variables.
+                            {isZh
+                              ? '这些变量需要在下方的测试用例中提供具体取值。每个测试用例应提供所有变量的数据。'
+                              : 'These variables will need values in your test cases below. Each test case should provide data for all variables.'}
                           </p>
                         </InfoBox>
                       ) : (
                         <InfoBox variant="subtle">
-                          <strong>Add variables</strong> to make your prompts more flexible. Use{' '}
+                          <strong>{isZh ? '添加变量' : 'Add variables'}</strong>{' '}
+                          {isZh
+                            ? '可以让您的提示词更加灵活。使用 '
+                            : 'to make your prompts more flexible. Use '}
                           <code className="bg-muted px-1 py-0.5 rounded text-xs">
                             {'{{variable_name}}'}
                           </code>{' '}
-                          syntax to create placeholders that will be filled with test data.
+                          {isZh
+                            ? '语法创建将被测试数据填充的占位符。'
+                            : 'syntax to create placeholders that will be filled with test data.'}
                         </InfoBox>
                       )
                     }
@@ -610,19 +628,22 @@ const EvaluateTestSuiteCreator = () => {
                     guidance={
                       testCount === 0 ? (
                         <InfoBox variant="help">
-                          <strong>What are test cases?</strong>
+                          <strong>{isZh ? '什么是测试用例？' : 'What are test cases?'}</strong>
                           <p className="mt-1">
-                            Test cases are specific examples that evaluate how well your prompts
-                            work. Each test case includes:
+                            {isZh
+                              ? '测试用例是用于评估提示词效果的具体实例。每个测试用例包含：'
+                              : 'Test cases are specific examples that evaluate how well your prompts work. Each test case includes:'}
                           </p>
                           <ul className="mt-2 space-y-1 list-disc list-inside">
                             <li>
-                              <strong>Variables:</strong> Input data that fills in your prompt
-                              variables
+                              <strong>{isZh ? '变量数据：' : 'Variables:'}</strong>{' '}
+                              {isZh
+                                ? '用于填充提示词中变量的输入内容'
+                                : 'Input data that fills in your prompt variables'}
                               {varsList.length > 0 && (
                                 <>
                                   {' '}
-                                  (like{' '}
+                                  ({isZh ? '例如 ' : 'like '}
                                   <code className="bg-muted px-1 py-0.5 rounded text-xs">
                                     {varsList[0]}
                                   </code>
@@ -631,22 +652,29 @@ const EvaluateTestSuiteCreator = () => {
                               )}
                             </li>
                             <li>
-                              <strong>Assertions:</strong> Checks to verify the AI's response
-                              (optional but recommended)
+                              <strong>{isZh ? '断言判定：' : 'Assertions:'}</strong>{' '}
+                              {isZh
+                                ? '用于自动检验 AI 响应质量的规则（可选，推荐配置）'
+                                : "Checks to verify the AI's response (optional but recommended)"}
                             </li>
                           </ul>
                           <p className="mt-2">
-                            <strong>Example:</strong> If your prompt has a{' '}
+                            <strong>{isZh ? '示例：' : 'Example:'}</strong>{' '}
+                            {isZh ? '如果您的提示词中包含 ' : 'If your prompt has a '}
                             <code className="bg-muted px-1 py-0.5 rounded text-xs">
                               {'{{topic}}'}
                             </code>{' '}
-                            variable, each test case should provide a different topic value to test.
+                            {isZh
+                              ? '变量，每个测试用例应提供不同的主题值进行测试。'
+                              : 'variable, each test case should provide a different topic value to test.'}
                           </p>
                         </InfoBox>
                       ) : varsList.length > 0 ? (
                         <InfoBox variant="info">
-                          <strong>Required variables:</strong> Each test case must provide values
-                          for{' '}
+                          <strong>{isZh ? '必需变量：' : 'Required variables:'}</strong>{' '}
+                          {isZh
+                            ? '每个测试用例必须提供以下变量的值：'
+                            : 'Each test case must provide values for'}{' '}
                           {varsList.map((v, i) => (
                             <span key={v}>
                               <code className="rounded border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-xs text-foreground">
@@ -656,15 +684,17 @@ const EvaluateTestSuiteCreator = () => {
                             </span>
                           ))}
                           <p className="mt-2">
-                            Add assertions to automatically check if responses meet your quality
-                            standards (e.g., "contains", "matches regex", "is-json").
+                            {isZh
+                              ? '添加断言可以自动检查响应是否符合您的质量标准（例如包含特定文本、匹配正则表达式、是有效 JSON 等）。'
+                              : 'Add assertions to automatically check if responses meet your quality standards (e.g., "contains", "matches regex", "is-json").'}
                           </p>
                         </InfoBox>
                       ) : (
                         <InfoBox variant="subtle">
-                          <strong>Add assertions</strong> to automatically verify response quality.
-                          Common checks include: contains specific text, matches expected format,
-                          stays within length limits, or passes custom validation.
+                          <strong>{isZh ? '添加断言' : 'Add assertions'}</strong>{' '}
+                          {isZh
+                            ? '以自动验证响应质量。常用检查包括：包含特定文本、符合预期格式、在字数限制内或通过自定义验证。'
+                            : 'to automatically verify response quality. Common checks include: contains specific text, matches expected format, stays within length limits, or passes custom validation.'}
                         </InfoBox>
                       )
                     }

@@ -12,8 +12,10 @@ import {
   SelectValue,
 } from '@app/components/ui/select';
 import { Spinner } from '@app/components/ui/spinner';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
-import { displayNameOverrides, severityDisplayNames } from '@promptfoo/redteam/constants/metadata';
+import { getPluginDisplayName, getStrategyDisplayName } from '@app/utils/redteamTranslations';
+import { severityDisplayNames } from '@promptfoo/redteam/constants/metadata';
 import { formatPolicyIdentifierAsMetric } from '@promptfoo/redteam/plugins/policy/utils';
 import { Plus, SlidersHorizontal, X } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
@@ -26,6 +28,15 @@ const TYPE_LABELS: Record<ResultsFilter['type'], string> = {
   strategy: 'Strategy',
   severity: 'Severity',
   policy: 'Policy',
+};
+
+const TYPE_LABELS_ZH: Record<ResultsFilter['type'], string> = {
+  metric: '指标',
+  metadata: '元数据',
+  plugin: '插件',
+  strategy: '策略',
+  severity: '严重程度',
+  policy: '安全策略',
 };
 
 const OPERATOR_LABELS: Record<ResultsFilter['operator'], string> = {
@@ -41,6 +52,28 @@ const OPERATOR_LABELS: Record<ResultsFilter['operator'], string> = {
   gte: '≥',
   lt: '<',
   lte: '≤',
+};
+
+const OPERATOR_LABELS_ZH: Record<ResultsFilter['operator'], string> = {
+  equals: '等于',
+  not_equals: '不等于',
+  contains: '包含',
+  not_contains: '不包含',
+  exists: '存在',
+  is_defined: '已定义',
+  eq: '=',
+  neq: '≠',
+  gt: '>',
+  gte: '≥',
+  lt: '<',
+  lte: '≤',
+};
+
+const SEVERITY_DISPLAY_NAMES_ZH: Record<string, string> = {
+  low: '低危',
+  medium: '中危',
+  high: '高危',
+  critical: '严重',
 };
 
 function solelyHasEqualsOperator(type: ResultsFilter['type']): boolean {
@@ -92,6 +125,7 @@ function FilterRow({
   totalFilters: number;
   onRemove: () => void;
 }) {
+  const { isZh } = useTranslation();
   const [metadataValueInput, setMetadataValueInput] = useState(filter.value);
   const {
     filters,
@@ -234,53 +268,62 @@ function FilterRow({
   const typeOptions = useMemo(() => {
     const opts: { value: string; label: string }[] = [];
     if (filters.options.metric.length > 0) {
-      opts.push({ value: 'metric', label: TYPE_LABELS.metric });
+      opts.push({ value: 'metric', label: isZh ? TYPE_LABELS_ZH.metric : TYPE_LABELS.metric });
     }
-    opts.push({ value: 'metadata', label: TYPE_LABELS.metadata });
+    opts.push({ value: 'metadata', label: isZh ? TYPE_LABELS_ZH.metadata : TYPE_LABELS.metadata });
     if ((filters.options.plugin?.length ?? 0) > 0) {
-      opts.push({ value: 'plugin', label: TYPE_LABELS.plugin });
+      opts.push({ value: 'plugin', label: isZh ? TYPE_LABELS_ZH.plugin : TYPE_LABELS.plugin });
     }
     if ((filters.options.strategy?.length ?? 0) > 0) {
-      opts.push({ value: 'strategy', label: TYPE_LABELS.strategy });
+      opts.push({
+        value: 'strategy',
+        label: isZh ? TYPE_LABELS_ZH.strategy : TYPE_LABELS.strategy,
+      });
     }
     if ((filters.options.severity?.length ?? 0) > 0) {
-      opts.push({ value: 'severity', label: TYPE_LABELS.severity });
+      opts.push({
+        value: 'severity',
+        label: isZh ? TYPE_LABELS_ZH.severity : TYPE_LABELS.severity,
+      });
     }
     if ((filters.options.policy?.length ?? 0) > 0) {
-      opts.push({ value: 'policy', label: TYPE_LABELS.policy });
+      opts.push({ value: 'policy', label: isZh ? TYPE_LABELS_ZH.policy : TYPE_LABELS.policy });
     }
     return opts;
-  }, [filters.options]);
+  }, [filters.options, isZh]);
 
   // Build operator options based on type
   const operatorOptions = useMemo(() => {
+    const getOpLabel = (op: ResultsFilter['operator']) =>
+      isZh ? OPERATOR_LABELS_ZH[op] : OPERATOR_LABELS[op];
+
     if (filter.type === 'metric') {
       return [
-        { value: 'is_defined', label: OPERATOR_LABELS.is_defined },
-        { value: 'eq', label: OPERATOR_LABELS.eq },
-        { value: 'neq', label: OPERATOR_LABELS.neq },
-        { value: 'gt', label: OPERATOR_LABELS.gt },
-        { value: 'gte', label: OPERATOR_LABELS.gte },
-        { value: 'lt', label: OPERATOR_LABELS.lt },
-        { value: 'lte', label: OPERATOR_LABELS.lte },
+        { value: 'is_defined', label: getOpLabel('is_defined') },
+        { value: 'eq', label: getOpLabel('eq') },
+        { value: 'neq', label: getOpLabel('neq') },
+        { value: 'gt', label: getOpLabel('gt') },
+        { value: 'gte', label: getOpLabel('gte') },
+        { value: 'lt', label: getOpLabel('lt') },
+        { value: 'lte', label: getOpLabel('lte') },
       ];
     }
     if (filter.type === 'plugin') {
       return [
-        { value: 'equals', label: OPERATOR_LABELS.equals },
-        { value: 'not_equals', label: OPERATOR_LABELS.not_equals },
+        { value: 'equals', label: getOpLabel('equals') },
+        { value: 'not_equals', label: getOpLabel('not_equals') },
       ];
     }
     if (solelyHasEqualsOperator(filter.type)) {
-      return [{ value: 'equals', label: OPERATOR_LABELS.equals }];
+      return [{ value: 'equals', label: getOpLabel('equals') }];
     }
     return [
-      { value: 'equals', label: OPERATOR_LABELS.equals },
-      { value: 'contains', label: OPERATOR_LABELS.contains },
-      { value: 'not_contains', label: OPERATOR_LABELS.not_contains },
-      { value: 'exists', label: OPERATOR_LABELS.exists },
+      { value: 'equals', label: getOpLabel('equals') },
+      { value: 'contains', label: getOpLabel('contains') },
+      { value: 'not_contains', label: getOpLabel('not_contains') },
+      { value: 'exists', label: getOpLabel('exists') },
     ];
-  }, [filter.type]);
+  }, [filter.type, isZh]);
 
   // Build value options for select types
   const valueOptions = useMemo(() => {
@@ -288,13 +331,18 @@ function FilterRow({
       return (filters.options[filter.type] ?? [])
         .map((optionValue) => {
           let displayName: string | null = null;
-          if (filter.type === 'plugin' || filter.type === 'strategy') {
-            displayName =
-              displayNameOverrides[optionValue as keyof typeof displayNameOverrides] || null;
+          if (filter.type === 'plugin') {
+            displayName = getPluginDisplayName(optionValue, isZh);
+          }
+          if (filter.type === 'strategy') {
+            displayName = getStrategyDisplayName(optionValue, isZh);
           }
           if (filter.type === 'severity') {
-            displayName =
-              severityDisplayNames[optionValue as keyof typeof severityDisplayNames] || null;
+            displayName = isZh
+              ? SEVERITY_DISPLAY_NAMES_ZH[optionValue.toLowerCase()] ||
+                severityDisplayNames[optionValue as keyof typeof severityDisplayNames] ||
+                null
+              : severityDisplayNames[optionValue as keyof typeof severityDisplayNames] || null;
           }
           if (filter.type === 'policy') {
             const policyName = filters.policyIdToNameMap?.[optionValue];
@@ -309,7 +357,7 @@ function FilterRow({
         .sort((a, b) => a.sortValue.localeCompare(b.sortValue));
     }
     return [];
-  }, [filter.type, filters.options, filters.policyIdToNameMap]);
+  }, [filter.type, filters.options, filters.policyIdToNameMap, isZh]);
 
   const showValueInput = filter.operator !== 'exists' && filter.operator !== 'is_defined';
 
@@ -323,21 +371,27 @@ function FilterRow({
   const valuePlaceholder = useMemo(() => {
     switch (filter.type) {
       case 'plugin':
-        return 'Choose plugin...';
+        return isZh ? '选择插件...' : 'Choose plugin...';
       case 'strategy':
-        return 'Choose strategy...';
+        return isZh ? '选择策略...' : 'Choose strategy...';
       case 'severity':
-        return 'Choose severity...';
+        return isZh ? '选择严重程度...' : 'Choose severity...';
       case 'policy':
-        return 'Choose policy...';
+        return isZh ? '选择安全策略...' : 'Choose policy...';
       case 'metric':
         return '0.0';
       case 'metadata':
-        return metadataKey ? `Enter ${metadataKey} value...` : 'Select a key first';
+        return metadataKey
+          ? isZh
+            ? `输入 ${metadataKey} 的值...`
+            : `Enter ${metadataKey} value...`
+          : isZh
+            ? '请先选择键'
+            : 'Select a key first';
       default:
-        return 'Enter value...';
+        return isZh ? '输入值...' : 'Enter value...';
     }
-  }, [filter.type, metadataKey]);
+  }, [filter.type, metadataKey, isZh]);
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -381,13 +435,18 @@ function FilterRow({
       {filter.type === 'metadata' &&
         (metadataKeysLoading ? (
           <div className="relative w-[140px]">
-            <Input value="" placeholder="Loading keys..." disabled className="h-8 pr-8" />
+            <Input
+              value=""
+              placeholder={isZh ? '加载键列表中...' : 'Loading keys...'}
+              disabled
+              className="h-8 pr-8"
+            />
             <Spinner className="size-3 absolute right-2 top-2.5" />
           </div>
         ) : metadataKeys && metadataKeys.length > 0 ? (
           <Select value={filter.field || ''} onValueChange={handleFieldChange}>
             <SelectTrigger className="h-8 w-[140px] shrink-0">
-              <SelectValue placeholder="Choose key..." />
+              <SelectValue placeholder={isZh ? '选择键...' : 'Choose key...'} />
             </SelectTrigger>
             <SelectContent>
               {metadataKeys.map((key) => (
@@ -401,7 +460,15 @@ function FilterRow({
           <Input
             value={filter.field || ''}
             onChange={(e) => handleFieldChange(e.target.value)}
-            placeholder={metadataKeysError ? 'Error loading keys' : 'Enter key name...'}
+            placeholder={
+              metadataKeysError
+                ? isZh
+                  ? '加载键失败'
+                  : 'Error loading keys'
+                : isZh
+                  ? '输入键名...'
+                  : 'Enter key name...'
+            }
             className={cn('h-8 w-[140px]', metadataKeysError && 'border-destructive')}
           />
         ))}
@@ -410,7 +477,7 @@ function FilterRow({
       {filter.type === 'metric' && filters.options.metric.length > 0 && (
         <Select value={filter.field || ''} onValueChange={handleFieldChange}>
           <SelectTrigger className="h-8 w-[140px] shrink-0">
-            <SelectValue placeholder="Choose metric..." />
+            <SelectValue placeholder={isZh ? '选择指标...' : 'Choose metric...'} />
           </SelectTrigger>
           <SelectContent>
             {filters.options.metric.map((metric) => (
@@ -428,7 +495,7 @@ function FilterRow({
         onValueChange={(v) => handleOperatorChange(v as ResultsFilter['operator'])}
       >
         <SelectTrigger className="h-8 w-[110px] shrink-0">
-          <SelectValue placeholder="Operator..." />
+          <SelectValue placeholder={isZh ? '运算符...' : 'Operator...'} />
         </SelectTrigger>
         <SelectContent>
           {operatorOptions.map((opt) => (
@@ -516,6 +583,7 @@ function FilterRow({
 }
 
 export default function FiltersForm() {
+  const { isZh } = useTranslation();
   const [open, setOpen] = useState(false);
   const { filters, addFilter, removeFilter, removeAllFilters } = useTableStore();
 
@@ -574,7 +642,7 @@ export default function FiltersForm() {
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <SlidersHorizontal className="size-4 mr-2" />
-          Filters
+          {isZh ? '筛选' : 'Filters'}
           {activeFilterCount > 0 && (
             <span className="ml-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
               {activeFilterCount}
@@ -592,7 +660,7 @@ export default function FiltersForm() {
         <div className="space-y-3">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium">Filters</h4>
+            <h4 className="text-sm font-medium">{isZh ? '筛选条件' : 'Filters'}</h4>
             {filterList.length > 0 && (
               <Button
                 variant="ghost"
@@ -600,14 +668,16 @@ export default function FiltersForm() {
                 onClick={handleClearAll}
                 className="h-auto px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
               >
-                Clear all
+                {isZh ? '清空全部' : 'Clear all'}
               </Button>
             )}
           </div>
 
           {/* Filter rows */}
           {filterList.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No filters applied</p>
+            <p className="text-sm text-muted-foreground">
+              {isZh ? '未应用任何筛选' : 'No filters applied'}
+            </p>
           ) : (
             <div className="space-y-2">
               {filterList.map((filter, index) => (
@@ -625,7 +695,7 @@ export default function FiltersForm() {
           {/* Add filter button */}
           <Button variant="outline" size="sm" onClick={handleAddFilter} className="w-full">
             <Plus className="mr-2 size-4" />
-            Add filter
+            {isZh ? '添加筛选条件' : 'Add filter'}
           </Button>
         </div>
       </PopoverContent>

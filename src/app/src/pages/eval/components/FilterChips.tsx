@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { useCustomPoliciesMap } from '@app/hooks/useCustomPoliciesMap';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
+import { getPluginDisplayName } from '@app/utils/redteamTranslations';
 import {
   deserializePolicyIdFromMetric,
   formatPolicyIdentifierAsMetric,
@@ -19,6 +21,7 @@ const DEFAULT_VISIBLE_COUNT = 8;
  * Shows in the filters section below table actions for red team evaluations.
  */
 export function FilterChips() {
+  const { isZh } = useTranslation();
   const { filters, addFilter, removeFilter, config, table } = useTableStore();
   const policiesById = useCustomPoliciesMap(config?.redteam?.plugins ?? []);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -67,6 +70,9 @@ export function FilterChips() {
       if (policy) {
         return formatPolicyIdentifierAsMetric(policy.name ?? policy.id, metric);
       }
+    }
+    if (isZh) {
+      return getPluginDisplayName(metric, true);
     }
     return metric;
   };
@@ -130,7 +136,9 @@ export function FilterChips() {
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="text-xs font-medium text-muted-foreground">Filter by metric:</span>
+      <span className="text-xs font-medium text-muted-foreground">
+        {isZh ? '按指标筛选：' : 'Filter by metric:'}
+      </span>
       {visibleMetrics.map(({ metric, passCount, testCount }) => {
         const isActive = getActiveFilterId(metric) !== null;
         const passRate = testCount > 0 ? Math.round((passCount / testCount) * 100) : 0;
@@ -158,7 +166,13 @@ export function FilterChips() {
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              {isActive ? 'Click to remove filter' : `${passRate}% pass rate — Click to filter`}
+              {isActive
+                ? isZh
+                  ? '点击移除筛选'
+                  : 'Click to remove filter'
+                : isZh
+                  ? `${passRate}% 通过率 — 点击筛选`
+                  : `${passRate}% pass rate — Click to filter`}
             </TooltipContent>
           </Tooltip>
         );
@@ -175,11 +189,12 @@ export function FilterChips() {
           {isExpanded ? (
             <>
               <ChevronUp className="size-3" />
-              Show less
+              {isZh ? '收起' : 'Show less'}
             </>
           ) : (
             <>
-              <ChevronDown className="size-3" />+{hiddenCount} more
+              <ChevronDown className="size-3" />
+              {isZh ? `+${hiddenCount} 项` : `+${hiddenCount} more`}
             </>
           )}
         </button>
