@@ -1,3 +1,4 @@
+import { getEnvString } from '../../envars';
 import { OpenAiChatCompletionProvider } from './chat';
 import { OpenAiEmbeddingProvider } from './embedding';
 import { OpenAiModerationProvider } from './moderation';
@@ -5,7 +6,8 @@ import { OpenAiResponsesProvider } from './responses';
 
 import type { EnvOverrides } from '../../contracts/env';
 
-const DEFAULT_OPENAI_MODEL = 'gpt-6-sol';
+const DEFAULT_OPENAI_MODEL =
+  getEnvString('OPENAI_MODEL') || getEnvString('PROMPTFOO_OPENAI_MODEL') || 'gpt-6-sol';
 
 function createProviders(env?: EnvOverrides) {
   return {
