@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@app/components/ui/dialog';
 import { Separator } from '@app/components/ui/separator';
+import { useTranslation } from '@app/i18n';
 import { RotateCcw, Settings } from 'lucide-react';
 import SettingsPanel from './components/SettingsPanel';
 import { useSettingsState } from './hooks/useSettingsState';
@@ -26,6 +27,7 @@ const TableSettingsModal = ({
   resultsTableZoom,
   onResultsTableZoomChange,
 }: SettingsModalProps) => {
+  const { t } = useTranslation();
   const { resetToDefaults } = useSettingsState();
 
   const handleClose = () => {
@@ -43,7 +45,7 @@ const TableSettingsModal = ({
         <DialogHeader className="p-5 pb-3 border-b border-border/10">
           <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
             <Settings className="size-5 text-primary" />
-            Table Settings
+            {t('evalHeader.tableSettings')}
           </DialogTitle>
         </DialogHeader>
 
@@ -61,13 +63,13 @@ const TableSettingsModal = ({
             onClick={handleResetToDefaults}
             variant="ghost"
             size="sm"
-            aria-label="Reset settings to defaults"
-            title="Reset all settings to their default values"
+            aria-label={t('common.resetToDefaults')}
+            title={t('common.resetToDefaults')}
           >
             <RotateCcw className="size-4 mr-2" />
-            Reset to Defaults
+            {t('common.resetToDefaults')}
           </Button>
-          <Button onClick={handleClose}>Done</Button>
+          <Button onClick={handleClose}>{t('common.done')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

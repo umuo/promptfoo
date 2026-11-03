@@ -1,10 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { Button } from '@app/components/ui/button';
 import { Card } from '@app/components/ui/card';
 import { Checkbox } from '@app/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
+import { getStrategyDisplayName } from '@app/utils/redteamTranslations';
 import { CONFIGURABLE_STRATEGIES_SET } from '@promptfoo/redteam/constants';
 import { Settings } from 'lucide-react';
 import { TestCaseGenerateButton } from '../TestCaseDialog';
@@ -71,9 +73,38 @@ function HeroStrategyCard({
   isRemoteGenerationDisabled,
   isConfigured,
 }: HeroStrategyCardProps) {
+  const { isZh } = useTranslation();
   const { handleTestCaseGeneration, isGenerating, isCurrentStrategy } = useStrategyTestGeneration({
     strategyId: strategy.id,
   });
+
+  const displayName = useMemo(
+    () =>
+      isZh
+        ? strategy.id === 'jailbreak:meta'
+          ? 'Meta 智能体'
+          : strategy.id === 'jailbreak:hydra'
+            ? 'Hydra 多轮对抗'
+            : getStrategyDisplayName(strategy.id, true)
+        : strategy.name,
+    [strategy.id, strategy.name, isZh],
+  );
+
+  const displaySubtitle = useMemo(() => {
+    if (!isZh) {
+      return strategy.subtitle;
+    }
+    return strategy.id === 'jailbreak:meta' ? '单轮首选' : '多轮首选';
+  }, [strategy.id, strategy.subtitle, isZh]);
+
+  const displayDescription = useMemo(() => {
+    if (!isZh) {
+      return strategy.description;
+    }
+    return strategy.id === 'jailbreak:meta'
+      ? '动态构建攻击分类学并根据攻击历史自学习，以最大化突破防护几率。'
+      : '结合元学习的多轮对话攻击，基于完整上下文动态演化突破策略。';
+  }, [strategy.id, strategy.description, isZh]);
 
   const requiresConfig = isSelected && !isConfigured;
 
@@ -130,8 +161,8 @@ function HeroStrategyCard({
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <span className="text-base font-semibold">{strategy.name}</span>
-            <p className="mt-0.5 text-sm font-medium text-muted-foreground">{strategy.subtitle}</p>
+            <span className="text-base font-semibold">{displayName}</span>
+            <p className="mt-0.5 text-sm font-medium text-muted-foreground">{displaySubtitle}</p>
           </div>
           <Checkbox
             checked={isSelected}
@@ -145,12 +176,14 @@ function HeroStrategyCard({
         </div>
 
         {/* Description */}
-        <p className="text-sm text-muted-foreground">{strategy.description}</p>
+        <p className="text-sm text-muted-foreground">{displayDescription}</p>
 
         {/* Remote generation warning */}
         {isDisabled && isRemoteGenerationDisabled && (
           <div className="rounded border border-destructive/30 bg-destructive/10 px-2 py-1.5 text-xs text-destructive">
-            Requires remote generation. Unset PROMPTFOO_DISABLE_REMOTE_GENERATION to enable.
+            {isZh
+              ? '需要远程生成支持。请取消设置 PROMPTFOO_DISABLE_REMOTE_GENERATION 环境变量以启用。'
+              : 'Requires remote generation. Unset PROMPTFOO_DISABLE_REMOTE_GENERATION to enable.'}
           </div>
         )}
       </div>
@@ -202,13 +235,14 @@ export function HeroStrategiesSection({
   isRemoteGenerationDisabled,
   isStrategyConfigured,
 }: HeroStrategiesSectionProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="mb-8">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold">Recommended Strategies</h3>
+        <h3 className="text-lg font-semibold">{t('redteamStrategies.recommendedTitle')}</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          These agentic methods provide the highest attack success rates for most use cases. Most
-          users only need these two strategies for comprehensive coverage.
+          {t('redteamStrategies.recommendedDesc')}
         </p>
       </div>
 

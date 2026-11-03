@@ -9,10 +9,12 @@ import {
   DialogTitle,
 } from '@app/components/ui/dialog';
 import { useTelemetry } from '@app/hooks/useTelemetry';
+import { useTranslation } from '@app/i18n';
 import { useNavigate } from 'react-router';
 import { EXAMPLE_CONFIG, useRedTeamConfig } from '../hooks/useRedTeamConfig';
 
 export default function LoadExampleButton() {
+  const { t } = useTranslation();
   const { setFullConfig } = useRedTeamConfig();
   const { recordEvent } = useTelemetry();
   const navigate = useNavigate();
@@ -36,22 +38,19 @@ export default function LoadExampleButton() {
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Load Example Configuration?</DialogTitle>
+            <DialogTitle>{t('targetSetup.loadExampleTitle')}</DialogTitle>
           </DialogHeader>
-          <p className="text-muted-foreground">
-            Load example configuration with demo chat endpoint and sample application details?
-            Current settings will be replaced.
-          </p>
+          <p className="text-muted-foreground">{t('targetSetup.loadExampleDesc')}</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
-            <Button onClick={handleConfirmation}>Load Example</Button>
+            <Button onClick={handleConfirmation}>{t('targetSetup.loadExampleButton')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
       <Button variant="default" size="sm" onClick={handleClick} className="whitespace-nowrap">
-        Load Example
+        {t('targetSetup.loadExampleButton')}
       </Button>
     </>
   );

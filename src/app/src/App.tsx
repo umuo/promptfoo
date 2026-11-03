@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { TooltipProvider } from './components/ui/tooltip';
 import { ToastProvider } from './contexts/ToastContext';
+import { I18nProvider } from './i18n';
 import { createAppRoutes } from './routes';
 
 const router = createBrowserRouter(createAppRoutes(), {
@@ -12,13 +13,15 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <TooltipProvider delayDuration={300} skipDelayDuration={0}>
-      <ToastProvider>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </ToastProvider>
-    </TooltipProvider>
+    <I18nProvider>
+      <TooltipProvider delayDuration={300} skipDelayDuration={0}>
+        <ToastProvider>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </ToastProvider>
+      </TooltipProvider>
+    </I18nProvider>
   );
 }
 

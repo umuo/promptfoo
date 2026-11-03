@@ -7,11 +7,11 @@ import {
   CollapsibleTrigger,
 } from '@app/components/ui/collapsible';
 import { Tooltip, TooltipArrow, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
+import { getPluginDisplayName } from '@app/utils/redteamTranslations';
 import {
-  categoryAliases,
   categoryDescriptions,
-  displayNameOverrides,
   riskCategories,
   subCategoryDescriptions,
 } from '@promptfoo/redteam/constants';
@@ -60,13 +60,11 @@ interface PluginRowProps {
 }
 
 const PluginRow = ({ test, pluginPassRateThreshold, onPluginClick }: PluginRowProps) => {
+  const { t, isZh } = useTranslation();
   const passRate = test.total > 0 ? test.numPassed / test.total : 0;
   const isPassing = passRate >= pluginPassRateThreshold;
 
-  const displayName =
-    displayNameOverrides[test.name as keyof typeof displayNameOverrides] ||
-    categoryAliases[test.name as keyof typeof categoryAliases] ||
-    test.name;
+  const displayName = getPluginDisplayName(test.name, isZh);
 
   return (
     <button
@@ -100,7 +98,7 @@ const PluginRow = ({ test, pluginPassRateThreshold, onPluginClick }: PluginRowPr
             <TooltipArrow className="fill-foreground" />
             <p>
               {subCategoryDescriptions[test.name as keyof typeof subCategoryDescriptions] ||
-                'Click to view details'}
+                t('redteamReport.clickToViewDetails')}
             </p>
           </TooltipContent>
         </Tooltip>
@@ -253,6 +251,7 @@ const RiskCategories = ({
   failuresByPlugin,
   passesByPlugin,
 }: RiskCategoriesProps) => {
+  const { t } = useTranslation();
   const { pluginPassRateThreshold } = useReportStore();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     () => new Set(Object.keys(riskCategories)),
@@ -291,9 +290,19 @@ const RiskCategories = ({
         })
         .filter((test) => test.total > 0);
 
+      const rawDesc = categoryDescriptions[categoryName as keyof typeof categoryDescriptions];
+      const translatedName =
+        // biome-ignore lint/suspicious/noExplicitAny: dynamic key
+        (t(`redteamReport.topLevelCategories.${categoryName}` as any) as string) || category;
+      const translatedDesc = rawDesc
+        ? // biome-ignore lint/suspicious/noExplicitAny: dynamic key
+          (t(`redteamReport.topLevelCategoryDescriptions.${categoryName}` as any) as string) ||
+          rawDesc
+        : '';
+
       return {
-        name: category,
-        description: categoryDescriptions[categoryName as keyof typeof categoryDescriptions] ?? '',
+        name: translatedName,
+        description: translatedDesc,
         totalPasses,
         totalTests,
         testTypes,
@@ -331,13 +340,13 @@ const RiskCategories = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-xl font-semibold">Risk Categories</h2>
+        <h2 className="text-xl font-semibold">{t('redteamReport.riskCategories')}</h2>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className={cn('font-medium', getPassRateStyles(overallPassRate).text)}>
             {Math.round(overallPassRate * 100)}%
           </span>
           <span>
-            ({overallPassed}/{overallTotal} tests defended)
+            {t('redteamReport.testsDefended', { passed: overallPassed, total: overallTotal })}
           </span>
         </div>
       </div>

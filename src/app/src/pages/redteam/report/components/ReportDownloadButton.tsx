@@ -12,6 +12,7 @@ import { Spinner } from '@app/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { useCustomPoliciesMap } from '@app/hooks/useCustomPoliciesMap';
 import { useTelemetry } from '@app/hooks/useTelemetry';
+import { useTranslation } from '@app/i18n';
 import { displayNameOverrides } from '@promptfoo/redteam/constants';
 import { stringify } from 'csv-stringify/browser/esm/sync';
 import { getPluginIdFromResult, getStrategyIdFromTest } from '../components/shared';
@@ -23,6 +24,7 @@ interface ReportDownloadButtonProps {
 }
 
 const ReportDownloadButton = ({ evalDescription, evalData }: ReportDownloadButtonProps) => {
+  const { t } = useTranslation();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
 
@@ -144,7 +146,9 @@ const ReportDownloadButton = ({ evalDescription, evalData }: ReportDownloadButto
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
-        {isHovering && !isDownloading && <TooltipContent>Download report</TooltipContent>}
+        {isHovering && !isDownloading && (
+          <TooltipContent>{t('redteamReport.downloadReport')}</TooltipContent>
+        )}
       </Tooltip>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={handlePdfDownload}>PDF</DropdownMenuItem>

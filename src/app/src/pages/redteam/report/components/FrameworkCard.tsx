@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { Badge } from '@app/components/ui/badge';
 import { Card, CardContent } from '@app/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { calculateAttackSuccessRate } from '@promptfoo/presentation/redteamMetrics';
 import {
@@ -184,6 +185,27 @@ const FrameworkCard = ({
   showUntestedPlugins,
   idx,
 }: FrameworkCardProps) => {
+  const { t } = useTranslation();
+
+  const getSeverityLabel = useCallback(
+    (severity: Severity) => {
+      switch (severity) {
+        case Severity.Critical:
+          return t('redteamReport.severityCritical');
+        case Severity.High:
+          return t('redteamReport.severityHigh');
+        case Severity.Medium:
+          return t('redteamReport.severityMedium');
+        case Severity.Low:
+          return t('redteamReport.severityLow');
+        case Severity.Informational:
+          return t('redteamReport.severityInformational');
+        default:
+          return severityDisplayNames[severity] || severity;
+      }
+    },
+    [t],
+  );
   /**
    * Gets the Attack Success Rate (ASR) for a given plugin.
    * @param plugin - The plugin to get the ASR for.
@@ -251,7 +273,7 @@ const FrameworkCard = ({
                       variant={severityBadgeVariants[frameworkSeverity].variant}
                       className="font-bold"
                     >
-                      {severityDisplayNames[frameworkSeverity]}
+                      {getSeverityLabel(frameworkSeverity)}
                     </Badge>
                   </span>
                 </TooltipTrigger>

@@ -11,10 +11,12 @@ import {
 } from '@app/components/ui/dialog';
 import { Label } from '@app/components/ui/label';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
+import { useTranslation } from '@app/i18n';
 import { Settings } from 'lucide-react';
 import { useReportStore } from './store';
 
 const ReportSettingsDialogButton = () => {
+  const { t } = useTranslation();
   const {
     showUntestedPlugins,
     setShowUntestedPlugins,
@@ -58,13 +60,13 @@ const ReportSettingsDialogButton = () => {
             <Settings className="size-5" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Report Settings</TooltipContent>
+        <TooltipContent>{t('redteamReport.reportSettings')}</TooltipContent>
       </Tooltip>
 
       <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Report Settings</DialogTitle>
+            <DialogTitle>{t('redteamReport.reportSettings')}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6 py-4">
@@ -75,18 +77,20 @@ const ReportSettingsDialogButton = () => {
                 onCheckedChange={(checked) => setShowUntestedPlugins(checked === true)}
               />
               <Label htmlFor="show-untested" inline className="cursor-pointer">
-                Show untested plugins
+                {t('redteamReport.showUntestedPlugins')}
               </Label>
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="plugin-pass-rate">Plugin Pass Rate Threshold</Label>
+                <Label htmlFor="plugin-pass-rate">
+                  {t('redteamReport.passRateThresholdLabel')}
+                </Label>
                 <span className="text-sm font-medium text-muted-foreground">
                   {displayThreshold}%
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Sets the threshold for considering a plugin as passed on the risk cards.
+                {t('redteamReport.passRateThresholdDesc')}
               </p>
               <input
                 id="plugin-pass-rate"
@@ -107,7 +111,7 @@ const ReportSettingsDialogButton = () => {
           </div>
 
           <DialogFooter>
-            <Button onClick={handleClose}>Close</Button>
+            <Button onClick={handleClose}>{t('common.close')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,5 +1,6 @@
 import { Card, CardContent } from '@app/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { Severity, severityDisplayNames } from '@promptfoo/redteam/constants';
 
@@ -68,8 +69,26 @@ export default function SeverityCard({
   isActive = false,
   hasActiveFilter = false,
 }: SeverityCardProps) {
+  const { t } = useTranslation();
   const hasIssues = issueCount > 0;
   const styles = severityStyles[severity];
+
+  const severityName = (() => {
+    switch (severity) {
+      case Severity.Critical:
+        return t('redteamReport.severityCritical');
+      case Severity.High:
+        return t('redteamReport.severityHigh');
+      case Severity.Medium:
+        return t('redteamReport.severityMedium');
+      case Severity.Low:
+        return t('redteamReport.severityLow');
+      case Severity.Informational:
+        return t('redteamReport.severityInformational');
+      default:
+        return severityDisplayNames[severity] || severity;
+    }
+  })();
 
   // De-emphasize inactive cards when a filter is active
   const isInactive = hasActiveFilter && !isActive;
@@ -82,7 +101,7 @@ export default function SeverityCard({
           hasIssues ? styles.text : 'text-muted-foreground',
         )}
       >
-        {severityDisplayNames[severity]}
+        {severityName}
       </h3>
       <span
         className={cn(
@@ -93,7 +112,9 @@ export default function SeverityCard({
         {issueCount}
       </span>
       <span className={cn('text-sm', hasIssues ? styles.text : 'text-muted-foreground')}>
-        {issueCount === 1 ? 'Vulnerability' : 'Vulnerabilities'}
+        {issueCount === 1
+          ? t('redteamReport.vulnerabilitySingular')
+          : t('redteamReport.vulnerabilityPlural')}
       </span>
     </CardContent>
   );
@@ -114,8 +135,8 @@ export default function SeverityCard({
       aria-label={
         navigateOnClick && hasIssues
           ? isActive
-            ? `Clear ${severityDisplayNames[severity]} filter`
-            : `Filter by ${severityDisplayNames[severity]} vulnerabilities`
+            ? `Clear ${severityName} filter`
+            : `Filter by ${severityName} vulnerabilities`
           : undefined
       }
       onKeyDown={
@@ -141,7 +162,9 @@ export default function SeverityCard({
 
   // Wrap clickable cards with tooltip
   if (navigateOnClick && hasIssues) {
-    const tooltipTitle = isActive ? 'Click to clear filter' : 'Click to filter';
+    const tooltipTitle = isActive
+      ? t('redteamReport.clickToClearFilter')
+      : t('redteamReport.clickToFilter');
     return (
       <Tooltip>
         <TooltipTrigger asChild>{cardContent}</TooltipTrigger>

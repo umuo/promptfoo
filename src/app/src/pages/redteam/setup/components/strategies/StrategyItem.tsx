@@ -5,7 +5,9 @@ import { Button } from '@app/components/ui/button';
 import { Card } from '@app/components/ui/card';
 import { Checkbox } from '@app/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
+import { getStrategyDisplayName } from '@app/utils/redteamTranslations';
 import {
   AGENTIC_STRATEGIES_SET,
   CONFIGURABLE_STRATEGIES_SET,
@@ -46,9 +48,15 @@ export function StrategyItem({
   isAuthGated = false,
   isConfigured = true,
 }: StrategyItemProps) {
+  const { isZh } = useTranslation();
   const { handleTestCaseGeneration, isGenerating, isCurrentStrategy } = useStrategyTestGeneration({
     strategyId: strategy.id,
   });
+
+  const displayName = useMemo(
+    () => (isZh ? getStrategyDisplayName(strategy.id, true) : strategy.name),
+    [strategy.id, strategy.name, isZh],
+  );
 
   const requiresConfig = isSelected && !isConfigured;
 
@@ -118,25 +126,25 @@ export function StrategyItem({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-medium">{strategy.name}</span>
+              <span className="font-medium">{displayName}</span>
               {DEFAULT_STRATEGIES_SET.has(strategy.id) && (
-                <Badge variant="secondary">Recommended</Badge>
+                <Badge variant="secondary">{isZh ? '推荐' : 'Recommended'}</Badge>
               )}
               {AGENTIC_STRATEGIES_SET.has(strategy.id) && (
                 <Badge className="border border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                  Agent
+                  {isZh ? '智能体' : 'Agent'}
                 </Badge>
               )}
               {MULTI_MODAL_STRATEGIES_SET.has(strategy.id) && (
                 <Badge className="border border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                  Multi-modal
+                  {isZh ? '多模态' : 'Multi-modal'}
                 </Badge>
               )}
               {isDisabled && isRemoteGenerationDisabled && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="pointer-events-auto rounded border border-destructive/30 bg-destructive/10 px-1 py-0.5 text-[0.7rem] font-medium text-destructive">
-                      Remote generation required
+                      {isZh ? '需远程生成' : 'Remote generation required'}
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>

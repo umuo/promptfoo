@@ -13,6 +13,7 @@ import {
 } from '@app/components/ui/dialog';
 import { DeleteIcon } from '@app/components/ui/icons';
 import { EVAL_ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { callApi } from '@app/utils/api';
 import { formatDataGridDate } from '@app/utils/date';
@@ -42,6 +43,7 @@ export default function EvalsTable({
     invariant(focusedEvalId, 'focusedEvalId is required when filterByDatasetId is true');
   }
 
+  const { t } = useTranslation();
   const [evals, setEvals] = useState<EvalSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -178,11 +180,8 @@ export default function EvalsTable({
     () => [
       {
         id: 'description',
-        // accessorFn (not accessorKey) ensures every row is searched. TanStack Table
-        // infers column types from the first row, so a leading row with description:
-        // null would silently drop this column from global search.
         accessorFn: (row) => row.description || row.label,
-        header: 'Evaluation',
+        header: t('evals.headerEvaluation'),
         cell: ({ row }) => {
           const text = row.original.description || row.original.label;
           return (
@@ -196,7 +195,7 @@ export default function EvalsTable({
               title={text || row.original.evalId}
               className="line-clamp-2 text-sm font-medium text-foreground hover:text-primary hover:underline"
             >
-              {text || 'Untitled evaluation'}
+              {text || t('evals.untitled')}
             </Link>
           );
         },
@@ -204,7 +203,7 @@ export default function EvalsTable({
       },
       {
         accessorKey: 'evalId',
-        header: 'ID',
+        header: t('evals.headerId'),
         cell: ({ getValue }) => {
           const evalId = getValue<string>();
           if (evalId === focusedEvalId) {
@@ -232,7 +231,7 @@ export default function EvalsTable({
       },
       {
         accessorKey: 'createdAt',
-        header: 'Created',
+        header: t('evals.headerCreated'),
         cell: ({ getValue }) => (
           <span className="text-sm">{formatDataGridDate(getValue<number>())}</span>
         ),
@@ -244,7 +243,7 @@ export default function EvalsTable({
             {
               id: 'type',
               accessorFn: (row) => (row.isRedteam ? 'Red Team' : 'Eval'),
-              header: 'Type',
+              header: t('evals.headerType'),
               cell: ({ row }) => {
                 const isRedteam = row.original.isRedteam;
                 return (
@@ -273,7 +272,7 @@ export default function EvalsTable({
         : []),
       {
         accessorKey: 'passRate',
-        header: 'Pass Rate',
+        header: t('evals.headerPassRate'),
         cell: ({ getValue }) => {
           const rate = getValue<number>();
           const colorClass =
@@ -291,7 +290,7 @@ export default function EvalsTable({
       },
       {
         accessorKey: 'numTests',
-        header: 'Tests',
+        header: t('evals.headerTests'),
         cell: ({ getValue }) => (
           <span className="font-mono tabular-nums">{getValue<number>()}</span>
         ),
@@ -299,7 +298,7 @@ export default function EvalsTable({
         meta: { align: 'right' },
       },
     ],
-    [focusedEvalId, onEvalSelected, hasRedteamEvals],
+    [focusedEvalId, onEvalSelected, hasRedteamEvals, t],
   );
 
   // Delete button for toolbar
@@ -312,7 +311,7 @@ export default function EvalsTable({
         data-testid="delete-selected-button"
       >
         <DeleteIcon className="size-4 mr-1.5" />
-        Delete ({selectedEvalIds.length})
+        {t('evals.deleteCount', { count: selectedEvalIds.length })}
       </Button>
     ) : null;
 
@@ -323,7 +322,7 @@ export default function EvalsTable({
         data={rows}
         isLoading={isLoading}
         error={error}
-        emptyMessage="No evaluations found. Create an eval to get started."
+        emptyMessage={t('evals.emptyMessage')}
         onRowClick={(row) => {
           if (row.evalId !== focusedEvalId) {
             onEvalSelected(row.evalId);
@@ -335,7 +334,7 @@ export default function EvalsTable({
         getRowId={(row) => row.evalId}
         initialSorting={[{ id: 'createdAt', desc: true }]}
         initialColumnVisibility={{ evalId: false }}
-        globalFilterLabel="Search evaluations"
+        globalFilterLabel={t('evals.searchEvals')}
         showToolbar={showUtilityButtons}
         showColumnToggle={showUtilityButtons}
         toolbarActions={deleteButton}
@@ -348,20 +347,17 @@ export default function EvalsTable({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              Delete {selectedEvalIds.length} eval{selectedEvalIds.length === 1 ? '' : 's'}?
+              {t('evals.deleteConfirmTitle', { count: selectedEvalIds.length })}
             </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete the selected eval
-              {selectedEvalIds.length === 1 ? '' : 's'}? This action cannot be undone.
-            </DialogDescription>
+            <DialogDescription>{t('evals.deleteConfirmDesc')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleConfirmDelete}>
               <DeleteIcon className="size-4 mr-1.5" />
-              Delete
+              {t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -3,6 +3,7 @@ import { Button } from '@app/components/ui/button';
 import { PlayArrowIcon, SettingsIcon } from '@app/components/ui/icons';
 import { Spinner } from '@app/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import InstallationGuide from './InstallationGuide';
 import PathSelector from './PathSelector';
@@ -40,6 +41,7 @@ export default function ConfigurationTab({
   installationStatus,
   onRetryInstallationCheck,
 }: ConfigurationTabProps) {
+  const { t } = useTranslation();
   const isCheckingInstallation = installationStatus?.checking ?? false;
   const isNotInstalled = installationStatus?.installed === false;
   const installationUnknown = installationStatus?.installed === null;
@@ -50,32 +52,38 @@ export default function ConfigurationTab({
 
   const getScanButtonText = () => {
     if (isScanning) {
-      return 'Scanning...';
+      return t('modelAuditSetup.scanning', 'Scanning...');
     }
     if (isCheckingInstallation) {
-      return 'Checking Installation...';
+      return t('modelAuditSetup.checkingInstallation', 'Checking Installation...');
     }
     if (isNotInstalled) {
-      return 'ModelAudit Not Installed';
+      return t('modelAuditSetup.modelAuditNotInstalled', 'ModelAudit Not Installed');
     }
     if (installationUnknown) {
-      return 'Start Security Scan (Checking...)';
+      return t('modelAuditSetup.startSecurityScanChecking', 'Start Security Scan (Checking...)');
     }
-    return 'Start Security Scan';
+    return t('modelAuditSetup.startSecurityScan', 'Start Security Scan');
   };
 
   const getScanButtonTooltip = () => {
     if (paths.length === 0) {
-      return 'Add at least one path to scan';
+      return t('modelAuditSetup.addAtLeastOnePath', 'Add at least one path to scan');
     }
     if (isCheckingInstallation) {
-      return 'Checking if ModelAudit is installed...';
+      return t(
+        'modelAuditSetup.checkingInstalledTooltip',
+        'Checking if ModelAudit is installed...',
+      );
     }
     if (isNotInstalled) {
-      return 'Install ModelAudit to start a scan';
+      return t('modelAuditSetup.installModelAuditTooltip', 'Install ModelAudit to start a scan');
     }
     if (installationUnknown) {
-      return 'Installation status will be verified when you click';
+      return t(
+        'modelAuditSetup.statusVerifiedOnClick',
+        'Installation status will be verified when you click',
+      );
     }
     return '';
   };
@@ -94,10 +102,12 @@ export default function ConfigurationTab({
       )}
 
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-2xl font-semibold tracking-tight">Select Models</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          {t('modelAuditSetup.selectModels', 'Select Models')}
+        </h2>
         <Button variant="outline" onClick={onShowOptions}>
           <SettingsIcon className="size-4 mr-2" />
-          Advanced Options
+          {t('modelAuditSetup.advancedOptions', 'Advanced Options')}
         </Button>
       </div>
 
@@ -143,7 +153,7 @@ export default function ConfigurationTab({
               <AlertDescription className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <span className="min-w-0">{error}</span>
                 <Button type="button" variant="destructive" onClick={onClearError}>
-                  Dismiss
+                  {t('modelAuditSetup.dismiss', 'Dismiss')}
                 </Button>
               </AlertDescription>
             </AlertContent>

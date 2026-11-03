@@ -1,4 +1,5 @@
 import { Button } from '@app/components/ui/button';
+import { useTranslation } from '@app/i18n';
 import { StrategyItem } from './StrategyItem';
 
 import type { StrategyCardData } from './types';
@@ -28,6 +29,8 @@ export function AgenticStrategiesGroup({
   isStrategyAuthGated,
   isStrategyConfigured,
 }: AgenticStrategiesGroupProps) {
+  const { t } = useTranslation();
+
   // Calculate selected strategies across both subsections
   const allAgenticStrategies = [
     ...singleTurnStrategies.map((s) => s.id),
@@ -46,10 +49,8 @@ export function AgenticStrategiesGroup({
       {/* Parent header */}
       <div className="mb-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Agentic Strategies</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Advanced AI-powered strategies that dynamically adapt their attack patterns
-          </p>
+          <h3 className="text-lg font-semibold">{t('redteamStrategies.agenticTitle')}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{t('redteamStrategies.agenticDesc')}</p>
         </div>
         {(singleTurnStrategies.length > 0 || multiTurnStrategies.length > 0) && (
           <Button
@@ -59,7 +60,7 @@ export function AgenticStrategiesGroup({
             disabled={selectedAgenticStrategies.length === 0}
             className="px-0 font-normal hover:bg-transparent"
           >
-            Reset All
+            {t('redteamStrategies.resetAll')}
           </Button>
         )}
       </div>
@@ -69,9 +70,9 @@ export function AgenticStrategiesGroup({
         {/* Single-turn only subsection */}
         {singleTurnStrategies.length > 0 && (
           <div className="mb-6">
-            <h4 className="mb-2 font-semibold">Single-turn Only</h4>
+            <h4 className="mb-2 font-semibold">{t('redteamStrategies.singleTurnOnly')}</h4>
             <p className="mb-4 text-sm text-muted-foreground">
-              These strategies work only for single-turn evaluations
+              {t('redteamStrategies.singleTurnOnlyDesc')}
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {singleTurnStrategies.map((strategy) => (
@@ -94,9 +95,9 @@ export function AgenticStrategiesGroup({
         {/* Single and multi-turn subsection */}
         {multiTurnStrategies.length > 0 && (
           <div>
-            <h4 className="mb-2 font-semibold">Single and Multi-turn</h4>
+            <h4 className="mb-2 font-semibold">{t('redteamStrategies.singleAndMultiTurn')}</h4>
             <p className="mb-4 text-sm text-muted-foreground">
-              These strategies can be used for both single and multi-turn evaluations
+              {t('redteamStrategies.singleAndMultiTurnDesc')}
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {multiTurnStrategies.map((strategy) => (

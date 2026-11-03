@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { Badge } from '@app/components/ui/badge';
 import { Button } from '@app/components/ui/button';
@@ -13,6 +13,7 @@ import {
 } from '@app/components/ui/select';
 import { Spinner } from '@app/components/ui/spinner';
 import { Tabs, TabsList, TabsTrigger } from '@app/components/ui/tabs';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import {
   AlertCircle,
@@ -48,21 +49,6 @@ interface MediaFiltersProps {
   total: number;
 }
 
-const typeOptions: { value: MediaTypeFilter; label: string; icon: typeof ImageIcon }[] = [
-  { value: 'all', label: 'All', icon: LayoutGrid },
-  { value: 'image', label: 'Images', icon: ImageIcon },
-  { value: 'video', label: 'Videos', icon: Video },
-  { value: 'audio', label: 'Audio', icon: Music },
-  { value: 'other', label: 'Other', icon: FileIcon },
-];
-
-const sortOptions = [
-  { value: 'createdAt:desc', label: 'Newest first', field: 'createdAt', order: 'desc' },
-  { value: 'createdAt:asc', label: 'Oldest first', field: 'createdAt', order: 'asc' },
-  { value: 'sizeBytes:desc', label: 'Largest first', field: 'sizeBytes', order: 'desc' },
-  { value: 'sizeBytes:asc', label: 'Smallest first', field: 'sizeBytes', order: 'asc' },
-] as const;
-
 export function MediaFilters({
   typeFilter,
   onTypeFilterChange,
@@ -78,8 +64,50 @@ export function MediaFilters({
   onEvalSearchQueryChange,
   total,
 }: MediaFiltersProps) {
+  const { t } = useTranslation();
   const [evalSearchOpen, setEvalSearchOpen] = useState(false);
   const currentSortValue = `${sort.field}:${sort.order}`;
+
+  const typeOptions = useMemo(
+    () => [
+      { value: 'all' as MediaTypeFilter, label: t('media.filterAll'), icon: LayoutGrid },
+      { value: 'image' as MediaTypeFilter, label: t('media.filterImages'), icon: ImageIcon },
+      { value: 'video' as MediaTypeFilter, label: t('media.filterVideos'), icon: Video },
+      { value: 'audio' as MediaTypeFilter, label: t('media.filterAudio'), icon: Music },
+      { value: 'other' as MediaTypeFilter, label: t('media.filterOther'), icon: FileIcon },
+    ],
+    [t],
+  );
+
+  const sortOptions = useMemo(
+    () => [
+      {
+        value: 'createdAt:desc',
+        label: t('media.sortNewest'),
+        field: 'createdAt' as const,
+        order: 'desc' as const,
+      },
+      {
+        value: 'createdAt:asc',
+        label: t('media.sortOldest'),
+        field: 'createdAt' as const,
+        order: 'asc' as const,
+      },
+      {
+        value: 'sizeBytes:desc',
+        label: t('media.sortLargest'),
+        field: 'sizeBytes' as const,
+        order: 'desc' as const,
+      },
+      {
+        value: 'sizeBytes:asc',
+        label: t('media.sortSmallest'),
+        field: 'sizeBytes' as const,
+        order: 'asc' as const,
+      },
+    ],
+    [t],
+  );
 
   // Find selected eval for display. Cache the description so it persists
   // when the evals list changes due to server-side search.

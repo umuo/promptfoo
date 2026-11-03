@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@app/components/ui/tab
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { useApiHealth } from '@app/hooks/useApiHealth';
 import { useTelemetry } from '@app/hooks/useTelemetry';
+import { useTranslation } from '@app/i18n';
 import {
   categoryAliases,
   displayNameOverrides,
@@ -105,6 +106,7 @@ const DESCRIPTIONS_BY_TAB: Record<string, React.ReactNode> = {
 };
 
 export default function Plugins({ onNext, onBack }: PluginsProps) {
+  const { t } = useTranslation();
   const { config, updatePlugins } = useRedTeamConfig();
   const { plugins: recentlyUsedPlugins, addPlugin } = useRecentlyUsedPlugins();
   const { recordEvent } = useTelemetry();
@@ -360,10 +362,37 @@ export default function Plugins({ onNext, onBack }: PluginsProps) {
   const customIntentsCount = countSelectedCustomIntents(config);
   const customPoliciesCount = countSelectedCustomPolicies(config);
 
+  const tabTitles: Record<string, string> = {
+    plugins: t('redteamPlugins.tabPlugins'),
+    intents: t('redteamPlugins.tabIntents'),
+    policies: t('redteamPlugins.tabPolicies'),
+  };
+
+  const pluginsTabDescription = (
+    <div className="space-y-4">
+      <p>
+        {t('redteamPlugins.descPlugins')}{' '}
+        <RouterLink
+          className="underline"
+          to="https://www.promptfoo.dev/docs/red-team/plugins/"
+          target="_blank"
+        >
+          {t('redteamPlugins.learnMore')}
+        </RouterLink>
+      </p>
+
+      <p>{t('redteamPlugins.descPluginsSub')}</p>
+    </div>
+  );
+
   return (
     <PageWrapper
-      title={TITLE_BY_TAB[activeTab]}
-      description={<div className="max-w-[1200px]">{DESCRIPTIONS_BY_TAB[activeTab]}</div>}
+      title={tabTitles[activeTab] || TITLE_BY_TAB[activeTab]}
+      description={
+        <div className="max-w-[1200px]">
+          {activeTab === 'plugins' ? pluginsTabDescription : DESCRIPTIONS_BY_TAB[activeTab]}
+        </div>
+      }
       onNext={onNext}
       onBack={onBack}
       nextDisabled={!isConfigValid() || !hasAnyPluginsConfigured()}
@@ -407,9 +436,15 @@ export default function Plugins({ onNext, onBack }: PluginsProps) {
         <TestCaseGenerationProvider redTeamConfig={config}>
           <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsList className="!h-auto w-full max-w-full flex-wrap justify-start gap-1 overflow-visible sm:!h-10 sm:w-auto sm:flex-nowrap sm:gap-0">
-              <TabsTrigger value="plugins">Plugins ({selectedPlugins.size})</TabsTrigger>
-              <TabsTrigger value="intents">Custom Intents ({customIntentsCount})</TabsTrigger>
-              <TabsTrigger value="policies">Custom Policies ({customPoliciesCount})</TabsTrigger>
+              <TabsTrigger value="plugins">
+                {t('redteamPlugins.tabPlugins')} ({selectedPlugins.size})
+              </TabsTrigger>
+              <TabsTrigger value="intents">
+                {t('redteamPlugins.tabIntents')} ({customIntentsCount})
+              </TabsTrigger>
+              <TabsTrigger value="policies">
+                {t('redteamPlugins.tabPolicies')} ({customPoliciesCount})
+              </TabsTrigger>
             </TabsList>
             <Separator className="mt-2" />
 

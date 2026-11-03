@@ -13,6 +13,7 @@ import {
 } from '@app/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@app/components/ui/tabs';
 import { useToast } from '@app/hooks/useToast';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { useStore } from '@app/stores/evalConfig';
 import { callApi } from '@app/utils/api';
@@ -78,6 +79,8 @@ function ErrorFallback({
 }
 
 const EvaluateTestSuiteCreator = () => {
+  const { t, i18n } = useTranslation();
+  const isZh = i18n?.language?.startsWith('zh') ?? false;
   const { showToast } = useToast();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [hasCustomConfig, setHasCustomConfig] = useState(false);
@@ -141,32 +144,32 @@ const EvaluateTestSuiteCreator = () => {
   const setupSteps: SetupStep[] = [
     {
       id: 1,
-      label: 'Providers',
-      title: 'Choose Providers',
+      label: isZh ? '模型提供商' : 'Providers',
+      title: isZh ? '选择模型提供商' : 'Choose Providers',
       isComplete: normalizedProviders.length > 0,
       count: normalizedProviders.length,
       required: true,
     },
     {
       id: 2,
-      label: 'Prompts',
-      title: 'Write Prompts',
+      label: isZh ? '提示词' : 'Prompts',
+      title: isZh ? '编写提示词' : 'Write Prompts',
       isComplete: normalizedPrompts.length > 0,
       count: normalizedPrompts.length,
       required: true,
     },
     {
       id: 3,
-      label: 'Test Cases',
-      title: 'Add Test Cases',
+      label: isZh ? '测试用例' : 'Test Cases',
+      title: isZh ? '添加测试用例' : 'Add Test Cases',
       isComplete: testCount > 0,
       count: testCount,
       required: true,
     },
     {
       id: 4,
-      label: 'Run Options',
-      title: 'Run Options',
+      label: isZh ? '运行选项' : 'Run Options',
+      title: isZh ? '运行选项' : 'Run Options',
       isComplete: Boolean(config.evaluateOptions?.delay || config.evaluateOptions?.maxConcurrency),
       required: false,
     },
@@ -234,9 +237,14 @@ const EvaluateTestSuiteCreator = () => {
           <div className="container max-w-7xl mx-auto px-4 py-6 lg:py-10">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight">Create Evaluation</h1>
+                <h1 className="text-3xl font-bold tracking-tight">
+                  {t('evalCreator.title', 'Create Evaluation')}
+                </h1>
                 <p className="text-muted-foreground">
-                  Choose what to evaluate, write prompts, and add test cases.
+                  {t(
+                    'evalCreator.subtitle',
+                    'Choose what to evaluate, write prompts, and add test cases.',
+                  )}
                 </p>
               </div>
 
@@ -244,7 +252,7 @@ const EvaluateTestSuiteCreator = () => {
                 {!hasCustomConfig && <ConfigureEnvButton />}
                 <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
                   <Upload className="size-4 mr-2" />
-                  Upload YAML
+                  {t('evalCreator.uploadYaml', 'Upload YAML')}
                 </Button>
                 <input
                   ref={fileInputRef}
@@ -255,7 +263,7 @@ const EvaluateTestSuiteCreator = () => {
                   aria-label="Upload YAML configuration"
                 />
                 <Button variant="outline" onClick={() => setResetDialogOpen(true)}>
-                  Reset
+                  {t('evalCreator.reset', 'Reset')}
                 </Button>
               </div>
             </div>
@@ -264,10 +272,10 @@ const EvaluateTestSuiteCreator = () => {
             <div className="mt-4 lg:mt-6">
               <TabsList aria-label="Editor mode">
                 <TabsTrigger value="ui" className="dark:text-foreground/80">
-                  UI Editor
+                  {t('evalCreator.uiEditor', 'UI Editor')}
                 </TabsTrigger>
                 <TabsTrigger value="yaml" className="dark:text-foreground/80">
-                  YAML Editor
+                  {t('evalCreator.yamlEditor', 'YAML Editor')}
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -280,16 +288,25 @@ const EvaluateTestSuiteCreator = () => {
             <Card className="mb-4 shadow-sm lg:mb-6">
               <CardContent className="flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between lg:p-5">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">Evaluation setup</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {t('evalCreator.setupProgress', 'Evaluation setup')}
+                  </p>
                   <h2 className="text-xl font-semibold">
                     {isReadyToRun
-                      ? 'Ready to run'
-                      : `${completedRequiredStepCount} of ${requiredSteps.length} required steps complete`}
+                      ? t('evalCreator.readyToRun', 'Ready to run')
+                      : isZh
+                        ? `已完成 ${completedRequiredStepCount} / ${requiredSteps.length} 个必填步骤`
+                        : `${completedRequiredStepCount} of ${requiredSteps.length} required steps complete`}
                   </h2>
                   <p className="text-sm text-muted-foreground">
                     {isReadyToRun
-                      ? 'Providers, prompts, and test cases are ready. Review run options or start the evaluation.'
-                      : `Next up: ${nextRecommendedStep.title}.`}
+                      ? t(
+                          'evalCreator.readyDesc',
+                          'Providers, prompts, and test cases are ready. Review run options or start the evaluation.',
+                        )
+                      : isZh
+                        ? `下一步：${nextRecommendedStep.title}。`
+                        : `Next up: ${nextRecommendedStep.title}.`}
                   </p>
                 </div>
 
@@ -298,11 +315,19 @@ const EvaluateTestSuiteCreator = () => {
                     {setupSteps.map((step) => {
                       const summaryStatus = step.required
                         ? step.isComplete
-                          ? `${step.count} ready`
-                          : 'Missing'
+                          ? isZh
+                            ? `${step.count} 个就绪`
+                            : `${step.count} ready`
+                          : isZh
+                            ? '未完成'
+                            : 'Missing'
                         : step.isComplete
-                          ? 'Configured'
-                          : 'Optional';
+                          ? isZh
+                            ? '已配置'
+                            : 'Configured'
+                          : isZh
+                            ? '可选'
+                            : 'Optional';
 
                       return (
                         <button
@@ -338,8 +363,10 @@ const EvaluateTestSuiteCreator = () => {
                       )}
                     >
                       {isReadyToRun
-                        ? 'Review run options'
-                        : `Continue to ${nextRecommendedStep.label}`}
+                        ? t('evalCreator.reviewRunOptions', 'Review run options')
+                        : isZh
+                          ? `继续前往 ${nextRecommendedStep.label}`
+                          : `Continue to ${nextRecommendedStep.label}`}
                     </Button>
                   )}
                 </div>
@@ -351,7 +378,7 @@ const EvaluateTestSuiteCreator = () => {
               <nav aria-label="Setup steps" className="hidden lg:block">
                 <div className="space-y-2 lg:sticky lg:top-8">
                   <h3 className="mb-4 px-3 text-sm font-semibold text-muted-foreground">
-                    SETUP STEPS
+                    {t('evalCreator.setupSteps', 'SETUP STEPS')}
                   </h3>
 
                   <div className="grid gap-2 sm:grid-cols-2 lg:block lg:space-y-2">
@@ -406,9 +433,15 @@ const EvaluateTestSuiteCreator = () => {
                               <div className="text-xs text-muted-foreground">
                                 {step.required
                                   ? step.isComplete
-                                    ? `${step.count} configured`
-                                    : 'Required'
-                                  : 'Optional'}
+                                    ? isZh
+                                      ? `已配置 ${step.count} 个`
+                                      : `${step.count} configured`
+                                    : isZh
+                                      ? '必填'
+                                      : 'Required'
+                                  : isZh
+                                    ? '可选'
+                                    : 'Optional'}
                               </div>
                             </div>
                           </div>
@@ -425,8 +458,12 @@ const EvaluateTestSuiteCreator = () => {
                 {activeStep === 1 && (
                   <StepSection
                     stepNumber={1}
-                    title="Choose Providers"
-                    description="Select what to evaluate: AI models, HTTP/WebSocket APIs, Python scripts, or custom code."
+                    title={isZh ? '选择模型提供商' : 'Choose Providers'}
+                    description={
+                      isZh
+                        ? '选择要评测的目标：AI 模型、HTTP/WebSocket API、Python 脚本或自定义代码。'
+                        : 'Select what to evaluate: AI models, HTTP/WebSocket APIs, Python scripts, or custom code.'
+                    }
                     isComplete={normalizedProviders.length > 0}
                     isRequired
                     count={normalizedProviders.length}
@@ -486,8 +523,12 @@ const EvaluateTestSuiteCreator = () => {
                 {activeStep === 2 && (
                   <StepSection
                     stepNumber={2}
-                    title="Write Prompts"
-                    description="Create the prompts or inputs that will be sent to your providers. Use variables for dynamic content."
+                    title={isZh ? '编写提示词' : 'Write Prompts'}
+                    description={
+                      isZh
+                        ? '创建将发送给提供商的提示词或输入内容。使用变量支持动态内容。'
+                        : 'Create the prompts or inputs that will be sent to your providers. Use variables for dynamic content.'
+                    }
                     isComplete={normalizedPrompts.length > 0}
                     isRequired
                     count={normalizedPrompts.length}
@@ -557,8 +598,12 @@ const EvaluateTestSuiteCreator = () => {
                 {activeStep === 3 && (
                   <StepSection
                     stepNumber={3}
-                    title="Add Test Cases"
-                    description="Define test scenarios with input data and expected outcomes. Each case tests your prompts with different inputs."
+                    title={isZh ? '添加测试用例' : 'Add Test Cases'}
+                    description={
+                      isZh
+                        ? '使用输入数据和预期结果定义测试场景。每个用例使用不同输入测试您的提示词。'
+                        : 'Define test scenarios with input data and expected outcomes. Each case tests your prompts with different inputs.'
+                    }
                     isComplete={testCount > 0}
                     isRequired
                     count={testCount}
@@ -642,8 +687,12 @@ const EvaluateTestSuiteCreator = () => {
                 {activeStep === 4 && (
                   <StepSection
                     stepNumber={4}
-                    title="Run Options"
-                    description="Configure how your evaluation will run (optional but recommended for rate limiting)."
+                    title={isZh ? '运行选项' : 'Run Options'}
+                    description={
+                      isZh
+                        ? '配置评测的运行方式（可选，推荐用于速率限制）。'
+                        : 'Configure how your evaluation will run (optional but recommended for rate limiting).'
+                    }
                     isComplete={
                       !!(config.evaluateOptions?.delay || config.evaluateOptions?.maxConcurrency)
                     }
@@ -683,18 +732,19 @@ const EvaluateTestSuiteCreator = () => {
       <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reset evaluation setup?</DialogTitle>
+            <DialogTitle>{isZh ? '重置评测配置？' : 'Reset evaluation setup?'}</DialogTitle>
             <DialogDescription>
-              This clears providers, prompts, test cases, and run options. This action cannot be
-              undone.
+              {isZh
+                ? '此操作将清空模型提供商、提示词、测试用例和运行选项，且无法撤销。'
+                : 'This clears providers, prompts, test cases, and run options. This action cannot be undone.'}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setResetDialogOpen(false)}>
-              Cancel
+              {isZh ? '取消' : 'Cancel'}
             </Button>
             <Button variant="destructive" onClick={handleReset}>
-              Reset
+              {isZh ? '重置' : 'Reset'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -26,11 +26,13 @@ import { EVAL_ROUTES, REDTEAM_ROUTES } from '@app/constants/routes';
 import { useApiHealth } from '@app/hooks/useApiHealth';
 import { useTelemetry } from '@app/hooks/useTelemetry';
 import { useToast } from '@app/hooks/useToast';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import YamlEditor from '@app/pages/eval-creator/components/YamlEditor';
 import { useRedteamJobStore } from '@app/stores/redteamJobStore';
 import { callApi } from '@app/utils/api';
 import { checkEmailStatus } from '@app/utils/emailVerification';
+import { getPluginDisplayName, getStrategyDisplayName } from '@app/utils/redteamTranslations';
 import { isFoundationModelProvider } from '@promptfoo/providers/constants';
 import { REDTEAM_DEFAULTS, strategyDisplayNames } from '@promptfoo/redteam/constants';
 import {
@@ -161,6 +163,7 @@ export default function Review({
   navigateToStrategies,
   navigateToPurpose,
 }: ReviewProps) {
+  const { t, isZh } = useTranslation();
   const { config, updateConfig } = useRedTeamConfig();
   const { targetConfigError } = useRedTeamTargetConfigValidation();
   const { recordEvent } = useTelemetry();
@@ -379,17 +382,20 @@ export default function Review({
     setIsYamlDialogOpen(true);
   };
 
-  const getPluginSummary = useCallback((plugin: string | RedteamPlugin) => {
-    if (typeof plugin === 'string') {
-      return { label: plugin, count: 1 };
-    }
+  const getPluginSummary = useCallback(
+    (plugin: string | RedteamPlugin) => {
+      if (typeof plugin === 'string') {
+        return { label: isZh ? getPluginDisplayName(plugin, true) : plugin, count: 1 };
+      }
 
-    if (plugin.id === 'policy') {
-      return { label: 'Custom Policy', count: 1 };
-    }
+      if (plugin.id === 'policy') {
+        return { label: isZh ? '自定义合规策略' : 'Custom Policy', count: 1 };
+      }
 
-    return { label: plugin.id, count: 1 };
-  }, []);
+      return { label: isZh ? getPluginDisplayName(plugin.id, true) : plugin.id, count: 1 };
+    },
+    [isZh],
+  );
 
   const pluginSummary = useMemo(() => {
     const summary = new Map<string, number>();
@@ -438,12 +444,14 @@ export default function Review({
         return;
       }
 
-      const label = strategyDisplayNames[id as keyof typeof strategyDisplayNames] || id;
+      const label = isZh
+        ? getStrategyDisplayName(id, true)
+        : strategyDisplayNames[id as keyof typeof strategyDisplayNames] || id;
       summary.set(label, (summary.get(label) || 0) + 1);
     });
 
     return Array.from(summary.entries()).sort((a, b) => b[1] - a[1]);
-  }, [config.strategies]);
+  }, [config.strategies, isZh]);
 
   const isRunNowDisabled = useMemo(() => {
     return (
@@ -713,10 +721,10 @@ export default function Review({
   }, []);
 
   return (
-    <PageWrapper title="Review & Run" onBack={onBack}>
+    <PageWrapper title={t('redteamReview.title')} onBack={onBack}>
       <div>
         <div className="mb-8">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">{t('common.description')}</Label>
           <Input
             id="description"
             placeholder="My Red Team Configuration"
@@ -726,13 +734,15 @@ export default function Review({
           />
         </div>
 
-        <h2 className="mb-6 text-xl font-semibold">Configuration Summary</h2>
+        <h2 className="mb-6 text-xl font-semibold">{t('redteamReview.configSummary')}</h2>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Plugins Card */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Plugins ({pluginSummary.length})</CardTitle>
+              <CardTitle className="text-lg">
+                {t('redteamReview.pluginsCount', { count: pluginSummary.length })}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
@@ -742,7 +752,8 @@ export default function Review({
                     variant="secondary"
                     className={cn(
                       'gap-1 pr-1',
-                      label === 'Custom Policy' && 'bg-primary text-primary-foreground',
+                      (label === 'Custom Policy' || label === '自定义合规策略') &&
+                        'bg-primary text-primary-foreground',
                     )}
                   >
                     {count > 1 ? `${label} (${count})` : label}
@@ -767,14 +778,11 @@ export default function Review({
                 <>
                   <Alert variant="warning" className="mt-4">
                     <AlertContent>
-                      <AlertDescription>
-                        You haven't selected any plugins. Plugins are the vulnerabilities that the
-                        red team will search for.
-                      </AlertDescription>
+                      <AlertDescription>{t('redteamReview.noPluginsWarning')}</AlertDescription>
                     </AlertContent>
                   </Alert>
                   <Button onClick={navigateToPlugins} className="mt-4">
-                    Add a plugin
+                    {t('redteamReview.addPlugin')}
                   </Button>
                 </>
               )}
@@ -784,7 +792,9 @@ export default function Review({
           {/* Strategies Card */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Strategies ({strategySummary.length})</CardTitle>
+              <CardTitle className="text-lg">
+                {t('redteamReview.strategiesCount', { count: strategySummary.length })}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
@@ -836,15 +846,11 @@ export default function Review({
                 <>
                   <Alert variant="warning" className="mt-4">
                     <AlertContent>
-                      <AlertDescription>
-                        The basic strategy is great for an end-to-end setup test, but don't expect
-                        any findings. Once you've verified that the setup is working, add another
-                        strategy.
-                      </AlertDescription>
+                      <AlertDescription>{t('redteamReview.basicStrategyWarning')}</AlertDescription>
                     </AlertContent>
                   </Alert>
                   <Button onClick={navigateToStrategies} className="mt-4">
-                    Add more strategies
+                    {t('redteamReview.addMoreStrategies')}
                   </Button>
                 </>
               )}
@@ -855,7 +861,9 @@ export default function Review({
           {customPolicies.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Custom Policies ({customPolicies.length})</CardTitle>
+                <CardTitle className="text-lg">
+                  {t('redteamReview.customPoliciesCount', { count: customPolicies.length })}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="max-h-[400px] space-y-2 overflow-y-auto">
@@ -921,7 +929,9 @@ export default function Review({
           {intents.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Intents ({intents.length})</CardTitle>
+                <CardTitle className="text-lg">
+                  {t('redteamReview.intentsCount', { count: intents.length })}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -939,7 +949,7 @@ export default function Review({
                           </p>
                           {isMultiStep && (
                             <p className="mt-0.5 text-xs text-muted-foreground">
-                              Multi-step intent
+                              {t('redteamReview.multiStepIntent')}
                             </p>
                           )}
                           <Button
@@ -961,7 +971,9 @@ export default function Review({
                       onClick={() => setExpanded(!expanded)}
                       className="mt-2 px-0"
                     >
-                      {expanded ? 'Show Less' : `Show ${intents.length - 5} More`}
+                      {expanded
+                        ? t('redteamReview.showLess')
+                        : t('redteamReview.showMoreCount', { count: intents.length - 5 })}
                     </Button>
                   )}
                 </div>
@@ -978,7 +990,7 @@ export default function Review({
               <div className="flex min-w-0 flex-1 flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <div className="flex min-w-0 items-center gap-2">
                   <Info className="size-4 shrink-0 text-muted-foreground" />
-                  <h3 className="min-w-0 text-lg font-semibold">Application Details</h3>
+                  <h3 className="min-w-0 text-lg font-semibold">{t('redteamReview.appDetails')}</h3>
                 </div>
                 {config.purpose && (
                   <Badge
@@ -990,12 +1002,14 @@ export default function Review({
                         : 'border-green-500 text-green-600',
                     )}
                   >
-                    {config.purpose.length < 100 ? 'Needs more detail' : 'Configured'}
+                    {config.purpose.length < 100
+                      ? t('redteamReview.needsMoreDetail')
+                      : t('redteamReview.configured')}
                   </Badge>
                 )}
                 {!config.purpose && (
                   <Badge variant="outline" className="border-destructive text-xs text-destructive">
-                    Not configured
+                    {t('redteamReview.notConfigured')}
                   </Badge>
                 )}
               </div>
@@ -1024,8 +1038,8 @@ export default function Review({
                       }}
                     >
                       {expandedPurposeSections.size === parsedPurposeSections.length
-                        ? 'Collapse All'
-                        : 'Expand All'}
+                        ? t('redteamReview.collapseAll')
+                        : t('redteamReview.expandAll')}
                     </Button>
                   </div>
                 )}
@@ -1036,21 +1050,20 @@ export default function Review({
                     <Alert variant="warning">
                       <AlertContent>
                         <AlertDescription>
-                          Application details are required to generate a high quality red team. Go
-                          to the Application Details section and add a purpose.{' '}
+                          {t('redteamReview.appDetailsRequiredAlert')}{' '}
                           <Link
                             className="underline"
                             target="_blank"
                             rel="noopener noreferrer"
                             to="https://www.promptfoo.dev/docs/red-team/troubleshooting/best-practices/#1-provide-comprehensive-application-details"
                           >
-                            Learn more about red team best practices.
+                            {t('redteamReview.learnMoreBestPractices')}
                           </Link>
                         </AlertDescription>
                       </AlertContent>
                     </Alert>
                     <Button onClick={navigateToPurpose} className="mt-4">
-                      Add application details
+                      {t('redteamReview.addAppDetails')}
                     </Button>
                   </div>
                 ) : null}
@@ -1093,7 +1106,7 @@ export default function Review({
                     {config.purpose}
                   </p>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Not specified</p>
+                  <p className="text-sm text-muted-foreground">{t('redteamReview.notSpecified')}</p>
                 )}
                 {config.purpose &&
                   parsedPurposeSections.length === 0 &&
@@ -1103,13 +1116,17 @@ export default function Review({
                       className="mt-1 text-xs text-primary hover:underline"
                       onClick={() => setIsPurposeExpanded(!isPurposeExpanded)}
                     >
-                      {isPurposeExpanded ? 'Show less' : 'Show more'}
+                      {isPurposeExpanded
+                        ? t('redteamReview.showLessSmall')
+                        : t('redteamReview.showMoreSmall')}
                     </button>
                   )}
 
                 {config.testGenerationInstructions && (
                   <div className="mt-4">
-                    <h4 className="mb-2 text-sm font-medium">Test Generation Instructions</h4>
+                    <h4 className="mb-2 text-sm font-medium">
+                      {t('redteamReview.testGenInstructions')}
+                    </h4>
                     <p
                       onClick={() => setIsTestInstructionsExpanded(!isTestInstructionsExpanded)}
                       className={cn(
@@ -1126,7 +1143,9 @@ export default function Review({
                           className="mt-1 text-xs text-primary hover:underline"
                           onClick={() => setIsTestInstructionsExpanded(!isTestInstructionsExpanded)}
                         >
-                          {isTestInstructionsExpanded ? 'Show less' : 'Show more'}
+                          {isTestInstructionsExpanded
+                            ? t('redteamReview.showLessSmall')
+                            : t('redteamReview.showMoreSmall')}
                         </button>
                       )}
                   </div>
@@ -1141,10 +1160,12 @@ export default function Review({
               <div className="flex min-w-0 flex-1 flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <div className="flex min-w-0 items-center gap-2">
                   <Sliders className="size-4 shrink-0 text-muted-foreground" />
-                  <h3 className="min-w-0 text-lg font-semibold">Advanced Configuration</h3>
+                  <h3 className="min-w-0 text-lg font-semibold">
+                    {t('redteamReview.advancedConfig')}
+                  </h3>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  Optional
+                  {isZh ? '可选' : 'Optional'}
                 </Badge>
               </div>
               <ChevronDown
@@ -1157,8 +1178,7 @@ export default function Review({
             <CollapsibleContent>
               <div className="p-4">
                 <p className="mb-6 text-sm text-muted-foreground">
-                  Configure advanced options that apply to all test cases. These settings are for
-                  power users who need fine-grained control over their red team evaluation.
+                  {t('redteamReview.advancedConfigDesc')}
                 </p>
                 <DefaultTestVariables />
               </div>
@@ -1170,7 +1190,7 @@ export default function Review({
             <CollapsibleTrigger className="flex w-full items-center justify-between p-4 hover:bg-muted/50">
               <div className="flex items-center gap-2">
                 <Play className="size-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold">Run Options</h3>
+                <h3 className="text-lg font-semibold">{t('redteamReview.runOptions')}</h3>
               </div>
               <ChevronDown
                 className={cn(
@@ -1217,17 +1237,14 @@ export default function Review({
 
         <Separator className="my-8" />
 
-        <h2 className="mb-6 text-xl font-semibold">Run Your Scan</h2>
+        <h2 className="mb-6 text-xl font-semibold">{t('redteamReview.runYourScan')}</h2>
 
         <EstimationsDisplay config={config} />
 
         <Card className="p-6">
           <div className="mb-8">
-            <h3 className="mb-2 text-lg font-semibold">Option 1: Save and Run via CLI</h3>
-            <p className="mb-4 text-muted-foreground">
-              Save your configuration and run it from the command line. Full control over the
-              evaluation process, good for larger scans:
-            </p>
+            <h3 className="mb-2 text-lg font-semibold">{t('redteamReview.option1Title')}</h3>
+            <p className="mb-4 text-muted-foreground">{t('redteamReview.option1Desc')}</p>
             <Code>promptfoo redteam run</Code>
             <div className="mt-4 flex gap-3">
               <Button
@@ -1236,7 +1253,7 @@ export default function Review({
                 className="gap-2"
               >
                 <Save className="size-4" />
-                Save YAML
+                {t('redteamReview.saveYaml')}
               </Button>
               <Button
                 variant="outline"
@@ -1245,7 +1262,7 @@ export default function Review({
                 className="gap-2"
               >
                 <Eye className="size-4" />
-                View YAML
+                {t('redteamReview.viewYaml')}
               </Button>
             </div>
           </div>
@@ -1253,11 +1270,8 @@ export default function Review({
           <Separator className="my-6" />
 
           <div>
-            <h3 className="mb-2 text-lg font-semibold">Option 2: Run Directly in Browser</h3>
-            <p className="mb-4 text-muted-foreground">
-              Run the red team evaluation right here. Simpler but less powerful than the CLI, good
-              for tests and small scans:
-            </p>
+            <h3 className="mb-2 text-lg font-semibold">{t('redteamReview.option2Title')}</h3>
+            <p className="mb-4 text-muted-foreground">{t('redteamReview.option2Desc')}</p>
             {apiHealthStatus !== 'connected' && !isCheckingApiHealth && (
               <Alert variant="warning" className="mb-4">
                 <AlertContent>
@@ -1285,7 +1299,7 @@ export default function Review({
                         className="gap-2"
                       >
                         {isRunning ? <Spinner className="size-4" /> : <Play className="size-4" />}
-                        {isRunning ? 'Running...' : 'Run Now'}
+                        {isRunning ? t('redteamReview.running') : t('redteamReview.runNow')}
                       </Button>
                     </span>
                   </TooltipTrigger>
@@ -1294,7 +1308,7 @@ export default function Review({
                 {isRunning && (
                   <Button variant="destructive" onClick={handleCancel} className="gap-2">
                     <X className="size-4" />
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                 )}
                 {evalId && (
@@ -1302,13 +1316,13 @@ export default function Review({
                     <Button asChild className="gap-2 bg-green-600 hover:bg-green-700">
                       <a href={REDTEAM_ROUTES.REPORT_DETAIL(evalId)}>
                         <BarChart2 className="size-4" />
-                        View Report
+                        {t('redteamReview.viewReport')}
                       </a>
                     </Button>
                     <Button asChild className="gap-2 bg-green-600 hover:bg-green-700">
                       <a href={EVAL_ROUTES.DETAIL(evalId)}>
                         <Search className="size-4" />
-                        View Probes
+                        {t('redteamReview.viewProbes')}
                       </a>
                     </Button>
                   </>
@@ -1323,7 +1337,7 @@ export default function Review({
         <Dialog open={isYamlDialogOpen} onOpenChange={setIsYamlDialogOpen}>
           <DialogContent className="max-w-6xl w-[90vw] overflow-hidden">
             <DialogHeader>
-              <DialogTitle>YAML Configuration</DialogTitle>
+              <DialogTitle>{t('redteamReview.yamlConfig')}</DialogTitle>
             </DialogHeader>
             <div className="min-w-0 overflow-auto">
               <YamlEditor initialYaml={yamlContent} readOnly />
@@ -1343,12 +1357,9 @@ export default function Review({
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Job Already Running</DialogTitle>
+              <DialogTitle>{t('redteamReview.jobAlreadyRunningTitle')}</DialogTitle>
             </DialogHeader>
-            <p className="text-muted-foreground">
-              There is already a red team evaluation running. Would you like to cancel it and start
-              a new one?
-            </p>
+            <p className="text-muted-foreground">{t('redteamReview.jobAlreadyRunningDesc')}</p>
             <DialogFooter>
               <Button
                 variant="outline"
@@ -1357,9 +1368,11 @@ export default function Review({
                   confirmedRunTargetRef.current = null;
                 }}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
-              <Button onClick={handleCancelExistingAndRun}>Cancel Existing & Run New</Button>
+              <Button onClick={handleCancelExistingAndRun}>
+                {t('redteamReview.cancelAndRunNew')}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

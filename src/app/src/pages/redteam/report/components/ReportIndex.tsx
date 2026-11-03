@@ -2,11 +2,13 @@ import { PageContainer } from '@app/components/layout/PageContainer';
 import { PageHeader } from '@app/components/layout/PageHeader';
 import { Button } from '@app/components/ui/button';
 import { REDTEAM_ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { Plus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import ReportsTable from './ReportsTable';
 
 export default function ReportIndex() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -14,15 +16,15 @@ export default function ReportIndex() {
       <PageHeader>
         <div className="mx-auto flex w-full max-w-screen-2xl flex-wrap items-center justify-between gap-4 px-4 py-6 sm:px-8">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Red Team Reports</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t('redteamReport.reportsTitle')}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Review vulnerabilities found in your red team runs.
+              {t('redteamReport.reportsSubtitle')}
             </p>
           </div>
           <Button asChild size="sm">
             <Link to={REDTEAM_ROUTES.SETUP}>
               <Plus className="mr-2 size-4" />
-              New red team
+              {t('redteamReport.newRedTeam')}
             </Link>
           </Button>
         </div>

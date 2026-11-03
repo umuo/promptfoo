@@ -1,5 +1,6 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { EVAL_ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { formatASRForDisplay } from '@app/utils/redteam';
 import { riskCategorySeverityMap, Severity } from '@promptfoo/redteam/constants';
@@ -30,6 +31,7 @@ export default function FrameworkPluginResult({
   type,
 }: FrameworkPluginResultProps) {
   const navigate = useNavigate();
+  const { isZh } = useTranslation();
 
   const handlePluginClick = (pluginId: string) => {
     const { asr } = getPluginASR(plugin);
@@ -73,7 +75,7 @@ export default function FrameworkPluginResult({
           className={cn('text-sm', type !== 'untested' && 'cursor-pointer hover:underline')}
           onClick={() => type !== 'untested' && handlePluginClick(plugin)}
         >
-          {getPluginDisplayName(plugin)}
+          {getPluginDisplayName(plugin, isZh)}
         </span>
         <Tooltip>
           <TooltipTrigger asChild>

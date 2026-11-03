@@ -5,7 +5,9 @@ import { Button } from '@app/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { EVAL_ROUTES } from '@app/constants/routes';
 import { useCustomPoliciesMap } from '@app/hooks/useCustomPoliciesMap';
+import { useTranslation } from '@app/i18n';
 import { formatASRForDisplay } from '@app/utils/redteam';
+import { getPluginDisplayName, getStrategyDisplayName } from '@app/utils/redteamTranslations';
 import { getRiskCategorySeverityMap } from '@promptfoo/presentation/redteamConfig';
 import { calculateAttackSuccessRate } from '@promptfoo/presentation/redteamMetrics';
 import {
@@ -64,6 +66,7 @@ const TestSuites = ({
   passesByPlugin,
   vulnerabilitiesDataGridRef,
 }: TestSuitesProps) => {
+  const { t, isZh } = useTranslation();
   const navigate = useNavigate();
   const { severityFilter } = useReportStore();
   const [sortModel] = React.useState<SortingState>([{ id: 'riskScore', desc: true }]);
@@ -293,21 +296,40 @@ const TestSuites = ({
     document.body.removeChild(link);
   }, [rows, sortModel, evalId]);
 
+  const getSeverityLabel = React.useCallback(
+    (severity: Severity) => {
+      switch (severity) {
+        case Severity.Critical:
+          return t('redteamReport.severityCritical');
+        case Severity.High:
+          return t('redteamReport.severityHigh');
+        case Severity.Medium:
+          return t('redteamReport.severityMedium');
+        case Severity.Low:
+          return t('redteamReport.severityLow');
+        case Severity.Informational:
+          return t('redteamReport.severityInformational');
+        default:
+          return severityDisplayNames[severity] || severity;
+      }
+    },
+    [t],
+  );
+
   // Define columns for DataTable
   const columns: ColumnDef<(typeof rows)[number]>[] = React.useMemo(
     () => [
       {
         accessorKey: 'type',
-        header: 'Type',
+        header: () => t('redteamReport.colType'),
         size: 200,
         meta: { sticky: 'left' },
-        accessorFn: (row) =>
-          displayNameOverrides[row.pluginName as keyof typeof displayNameOverrides] || row.type,
+        accessorFn: (row) => getPluginDisplayName(row.pluginName, isZh) || row.type,
         cell: ({ getValue }) => <span style={{ fontWeight: 500 }}>{getValue<string>()}</span>,
       },
       {
         accessorKey: 'description',
-        header: 'Description',
+        header: () => t('redteamReport.colDescription'),
         size: 230,
         cell: ({ getValue }) => (
           <Tooltip>
@@ -323,9 +345,9 @@ const TestSuites = ({
         header: () => (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="cursor-help">Risk</span>
+              <span className="cursor-help">{t('redteamReport.colRisk')}</span>
             </TooltipTrigger>
-            <TooltipContent>Risk Score</TooltipContent>
+            <TooltipContent>{t('redteamReport.riskScore')}</TooltipContent>
           </Tooltip>
         ),
         size: 110,
@@ -345,18 +367,17 @@ const TestSuites = ({
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
                 <div className="space-y-1">
-                  <p className="font-semibold">Risk Score</p>
-                  <p className="text-xs">
-                    Risk = Impact + Exploitability + Human Factor + Complexity
-                  </p>
+                  <p className="font-semibold">{t('redteamReport.riskScore')}</p>
+                  <p className="text-xs">{t('redteamReport.riskFormula')}</p>
                   <div className="mt-2 space-y-0.5 text-xs">
-                    <p>• Base Severity: {row.original.severity}</p>
                     <p>
-                      • Attack Success Rate: {formatASRForDisplay(row.original.attackSuccessRate)}%
+                      • {t('redteamReport.baseSeverity')}: {getSeverityLabel(row.original.severity)}
                     </p>
-                    <p className="mt-1 italic">
-                      Higher exploitability increases risk exponentially
+                    <p>
+                      • {t('redteamReport.colAttackSuccessRate')}:{' '}
+                      {formatASRForDisplay(row.original.attackSuccessRate)}%
                     </p>
+                    <p className="mt-1 italic">{t('redteamReport.higherExploitability')}</p>
                   </div>
                 </div>
               </TooltipContent>
@@ -366,7 +387,7 @@ const TestSuites = ({
       },
       {
         accessorKey: 'complexityScore',
-        header: 'Complexity',
+        header: () => t('redteamReport.colComplexity'),
         size: 100,
         meta: { align: 'right' },
         cell: ({ row }) => {
@@ -378,19 +399,23 @@ const TestSuites = ({
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
                 <div className="space-y-1">
-                  <p className="font-semibold">Attack Complexity</p>
-                  <p className="text-xs">How difficult this attack is to execute</p>
+                  <p className="font-semibold">{t('redteamReport.attackComplexity')}</p>
+                  <p className="text-xs">{t('redteamReport.howDifficult')}</p>
                   <div className="mt-2 space-y-0.5 text-xs">
-                    <p>Strategy: {row.original.worstStrategy}</p>
+                    <p>
+                      {t('redteamReport.strategyLabel', {
+                        strategy: getStrategyDisplayName(row.original.worstStrategy, isZh),
+                      })}
+                    </p>
                     <p>• Score: {value.toFixed(0)}/10</p>
                     <p className="mt-1">
                       {value >= 7
-                        ? 'Very Hard - Requires automation/tools'
+                        ? t('redteamReport.complexityVeryHard')
                         : value >= 5
-                          ? 'Hard - Requires expertise'
+                          ? t('redteamReport.complexityHard')
                           : value >= 3
-                            ? 'Medium - Requires some skill'
-                            : 'Easy - Average user could exploit'}
+                            ? t('redteamReport.complexityMedium')
+                            : t('redteamReport.complexityEasy')}
                     </p>
                   </div>
                 </div>
@@ -404,9 +429,9 @@ const TestSuites = ({
         header: () => (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="cursor-help">Succeeded</span>
+              <span className="cursor-help">{t('redteamReport.colSucceeded')}</span>
             </TooltipTrigger>
-            <TooltipContent>Successful Attacks</TooltipContent>
+            <TooltipContent>{t('redteamReport.colSucceeded')}</TooltipContent>
           </Tooltip>
         ),
         size: 120,
@@ -418,9 +443,9 @@ const TestSuites = ({
         header: () => (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="cursor-help">ASR</span>
+              <span className="cursor-help">{t('redteamReport.colAsr')}</span>
             </TooltipTrigger>
-            <TooltipContent>Attack Success Rate</TooltipContent>
+            <TooltipContent>{t('redteamReport.colAttackSuccessRate')}</TooltipContent>
           </Tooltip>
         ),
         size: 88,
@@ -434,7 +459,8 @@ const TestSuites = ({
               <strong>{formatASRForDisplay(value)}%</strong>
               {passRateWithFilter !== passRate && (
                 <>
-                  <br />({formatASRForDisplay(100 - passRateWithFilter)}% with mitigation)
+                  <br />({formatASRForDisplay(100 - passRateWithFilter)}%{' '}
+                  {t('redteamReport.withMitigation')})
                 </>
               )}
             </div>
@@ -443,11 +469,11 @@ const TestSuites = ({
       },
       {
         accessorKey: 'severity',
-        header: 'Severity',
+        header: () => t('redteamReport.colSeverity'),
         size: 100,
         cell: ({ getValue }) => {
           const value = getValue<Severity>();
-          return severityDisplayNames[value] || 'Unknown';
+          return getSeverityLabel(value);
         },
         sortingFn: (rowA, rowB) => {
           const severityOrder: Record<Severity, number> = {
@@ -474,7 +500,7 @@ const TestSuites = ({
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: () => t('redteamReport.colActions'),
         size: 72,
         meta: { sticky: 'right' },
         enableSorting: false,
@@ -485,7 +511,7 @@ const TestSuites = ({
                 variant="ghost"
                 size="icon"
                 className="size-8"
-                aria-label="View logs"
+                aria-label={t('redteamReport.viewLogs')}
                 onClick={() => {
                   const pluginId = row.original.pluginName;
                   const plugin = pluginsById[pluginId];
@@ -506,15 +532,15 @@ const TestSuites = ({
                 }}
               >
                 <ScrollText className="size-4" />
-                <span className="sr-only">View logs</span>
+                <span className="sr-only">{t('redteamReport.viewLogs')}</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>View logs</TooltipContent>
+            <TooltipContent>{t('redteamReport.viewLogs')}</TooltipContent>
           </Tooltip>
         ),
       },
     ],
-    [navigate, pluginsById, evalId],
+    [navigate, pluginsById, evalId, t, getSeverityLabel, isZh],
   );
 
   return (
@@ -523,10 +549,12 @@ const TestSuites = ({
         data-testid="vulnerabilities-header"
         className="mb-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between"
       >
-        <h2 className="text-xl font-semibold">Vulnerabilities and Mitigations</h2>
+        <h2 className="text-xl font-semibold">
+          {t('redteamReport.vulnerabilitiesAndMitigations')}
+        </h2>
         <Button onClick={exportToCSV} className="print:hidden">
           <Download className="mr-2 size-4" />
-          Export vulnerabilities to CSV
+          {t('redteamReport.exportToCsv')}
         </Button>
       </div>
       <DataTable

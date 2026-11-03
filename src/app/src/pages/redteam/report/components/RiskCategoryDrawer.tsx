@@ -9,9 +9,11 @@ import {
 } from '@app/components/ui/collapsible';
 import { Sheet, SheetContent, SheetTitle } from '@app/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@app/components/ui/tabs';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { getRedteamHistoryMessages } from '@app/utils/redteamHistory';
-import { categoryAliases, displayNameOverrides } from '@promptfoo/redteam/constants';
+import { getPluginDisplayName, getStrategyDisplayName } from '@app/utils/redteamTranslations';
+import { categoryAliases } from '@promptfoo/redteam/constants';
 import { getActualPrompt } from '@promptfoo/util/providerResponse';
 import { ChevronDown, Lightbulb } from 'lucide-react';
 import { useNavigate } from 'react-router';
@@ -112,6 +114,7 @@ const RiskCategoryDrawer = ({
   numPassed,
   numFailed,
 }: RiskCategoryDrawerProps) => {
+  const { t, isZh } = useTranslation();
   const navigate = useNavigate();
   const [suggestionsDialogOpen, setSuggestionsDialogOpen] = React.useState(false);
   const [currentGradingResult, setCurrentGradingResult] = React.useState<GradingResult | undefined>(
@@ -131,8 +134,7 @@ const RiskCategoryDrawer = ({
     return null;
   }
 
-  const displayName =
-    displayNameOverrides[category as keyof typeof displayNameOverrides] || categoryName;
+  const displayName = getPluginDisplayName(category, isZh);
 
   const totalTests = numPassed + numFailed;
   const passPercentage = totalTests > 0 ? Math.round((numPassed / totalTests) * 100) : 0;
@@ -148,7 +150,7 @@ const RiskCategoryDrawer = ({
           <SheetTitle className="sr-only">{displayName}</SheetTitle>
           <div className="risk-category-drawer">
             <h2 className="mb-4 text-lg font-semibold">{displayName}</h2>
-            <p className="mt-4 text-center">No tests have been run for this category.</p>
+            <p className="mt-4 text-center">{t('redteamReport.noTestsRun')}</p>
           </div>
         </SheetContent>
       </Sheet>
@@ -163,9 +165,7 @@ const RiskCategoryDrawer = ({
     );
     const chatMessages = buildChatMessages(test);
     const maxTurns = Math.ceil(chatMessages.length / 2);
-    const strategyLabel = strategyId
-      ? displayNameOverrides[strategyId as keyof typeof displayNameOverrides] || strategyId
-      : undefined;
+    const strategyLabel = strategyId ? getStrategyDisplayName(strategyId, isZh) : undefined;
 
     return (
       <Collapsible key={index} defaultOpen={index === 0}>
@@ -195,7 +195,9 @@ const RiskCategoryDrawer = ({
                   </Badge>
                 )}
                 {maxTurns > 1 && (
-                  <span className="text-xs text-muted-foreground">{maxTurns} turns</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t('redteamReport.turns', { count: maxTurns })}
+                  </span>
                 )}
                 <div className="flex-1" />
                 <div className="flex items-center gap-2 shrink-0">
@@ -223,14 +225,14 @@ const RiskCategoryDrawer = ({
                       setDetailsDialogOpen(true);
                     }}
                   >
-                    Details
+                    {t('redteamReport.details')}
                   </Button>
                 </div>
               </div>
               {isFailed && test.gradingResult?.reason && (
                 <div className="ml-7">
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
-                    Failure Reason
+                    {t('redteamReport.failureReason')}
                   </div>
                   <p className="text-xs text-red-600 dark:text-red-400">
                     {test.gradingResult.reason}
@@ -269,17 +271,17 @@ const RiskCategoryDrawer = ({
           <div className="mb-4 flex items-center justify-between">
             <div className="flex-1 text-center">
               <p className="text-3xl font-bold text-primary">{numPassed}</p>
-              <p className="text-sm text-muted-foreground">Passed</p>
+              <p className="text-sm text-muted-foreground">{t('redteamReport.passed')}</p>
             </div>
             <div className="flex-1 text-center">
               <p className="text-3xl font-bold">{totalTests}</p>
-              <p className="text-sm text-muted-foreground">Total</p>
+              <p className="text-sm text-muted-foreground">{t('redteamReport.total')}</p>
             </div>
             <div className="flex-1 text-center">
               <p className={cn('text-3xl font-bold', getPassRateStyles(passPercentage / 100).text)}>
                 {passPercentage}%
               </p>
-              <p className="text-sm text-muted-foreground">Pass Rate</p>
+              <p className="text-sm text-muted-foreground">{t('redteamReport.passRate')}</p>
             </div>
           </div>
 
@@ -310,7 +312,7 @@ const RiskCategoryDrawer = ({
               }
             }}
           >
-            View All Logs
+            {t('redteamReport.viewAllLogs')}
           </Button>
 
           <Tabs
@@ -323,13 +325,13 @@ const RiskCategoryDrawer = ({
           >
             <TabsList className="grid !h-auto w-full grid-cols-1 gap-1 sm:grid-cols-3 sm:!h-10 sm:gap-0">
               <TabsTrigger value="flagged" className="flex-1">
-                Failed Tests ({failures.length})
+                {t('redteamReport.failedTests', { count: failures.length })}
               </TabsTrigger>
               <TabsTrigger value="passed" className="flex-1">
-                Passed Tests ({passes.length})
+                {t('redteamReport.passedTests', { count: passes.length })}
               </TabsTrigger>
               <TabsTrigger value="flow" className="flex-1">
-                Flow Diagram
+                {t('redteamReport.flowDiagram')}
               </TabsTrigger>
             </TabsList>
 
@@ -339,7 +341,9 @@ const RiskCategoryDrawer = ({
                   {sortedFailures.map((failure, i) => renderTestItem(failure, i, true))}
                 </div>
               ) : (
-                <p className="mt-4 text-center text-muted-foreground">No failed tests</p>
+                <p className="mt-4 text-center text-muted-foreground">
+                  {t('redteamReport.noFailedTests')}
+                </p>
               )}
             </TabsContent>
 
@@ -349,14 +353,16 @@ const RiskCategoryDrawer = ({
                   {passes.map((pass, i) => renderTestItem(pass, i, false))}
                 </div>
               ) : (
-                <p className="mt-4 text-center text-muted-foreground">No passed tests</p>
+                <p className="mt-4 text-center text-muted-foreground">
+                  {t('redteamReport.noPassedTests')}
+                </p>
               )}
             </TabsContent>
 
             <TabsContent value="flow">
               <div className="mt-4">
                 <h3 className="mb-3 text-center text-lg font-semibold">
-                  Simulated User - Attack Performance
+                  {t('redteamReport.simulatedUserTitle')}
                 </h3>
                 <PluginStrategyFlow failuresByPlugin={failures} passesByPlugin={passes} />
               </div>

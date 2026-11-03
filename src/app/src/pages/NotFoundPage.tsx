@@ -4,17 +4,19 @@ import { Button } from '@app/components/ui/button';
 import { Card } from '@app/components/ui/card';
 import { usePageMeta } from '@app/hooks/usePageMeta';
 import { useTelemetry } from '@app/hooks/useTelemetry';
+import { useTranslation } from '@app/i18n';
 import { ClipboardList } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router';
 
 export default function NotFoundPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { recordEvent } = useTelemetry();
 
   usePageMeta({
-    title: 'Page Not Found',
-    description: 'The page you are looking for could not be found',
+    title: t('notFound.title', 'Page Not Found'),
+    description: t('notFound.description', 'The page you are looking for could not be found'),
   });
 
   useEffect(() => {
@@ -31,15 +33,15 @@ export default function NotFoundPage() {
         <Card className="p-8 w-full text-center shadow-lg">
           <h1 className="text-6xl font-bold text-primary mb-4">404</h1>
 
-          <h2 className="text-2xl font-semibold mb-2">Page Not Found</h2>
+          <h2 className="text-2xl font-semibold mb-2">{t('notFound.heading', 'Page Not Found')}</h2>
 
           <p className="text-muted-foreground mb-6">
-            The page you're looking for doesn't exist or has been moved.
+            {t('notFound.message', "The page you're looking for doesn't exist or has been moved.")}
           </p>
 
           <Button onClick={() => navigate('/evals')} size="lg">
             <ClipboardList className="size-5 mr-2" />
-            See Evals
+            {t('notFound.seeEvals', 'See Evals')}
           </Button>
         </Card>
       </div>

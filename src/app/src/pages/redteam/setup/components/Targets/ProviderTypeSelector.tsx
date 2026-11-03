@@ -3,6 +3,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Input } from '@app/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { useTelemetry } from '@app/hooks/useTelemetry';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { CheckCircle, HelpCircle, Search, X } from 'lucide-react';
 import {
@@ -31,6 +32,7 @@ export default function ProviderTypeSelector({
   availableProviderIds,
   disableModelSelection = false,
 }: ProviderTypeSelectorProps) {
+  const { t } = useTranslation();
   const { recordEvent } = useTelemetry();
 
   const [selectedProviderType, setSelectedProviderType] = useState<string | undefined>(
@@ -46,10 +48,10 @@ export default function ProviderTypeSelector({
   // Tag filter options - 4 categories based on user intent
   type TagKey = 'app' | 'agents' | 'providers' | 'local';
   const tagFilters: Array<{ key: TagKey; label: string }> = [
-    { key: 'app', label: 'My Application' },
-    { key: 'agents', label: 'Agent Frameworks' },
-    { key: 'providers', label: 'AI Providers' },
-    { key: 'local', label: 'Local Models' },
+    { key: 'app', label: t('providerTypeSelector.tagApp') },
+    { key: 'agents', label: t('providerTypeSelector.tagAgents') },
+    { key: 'providers', label: t('providerTypeSelector.tagProviders') },
+    { key: 'local', label: t('providerTypeSelector.tagLocal') },
   ];
 
   // Handle tag filter toggle
@@ -147,7 +149,7 @@ export default function ProviderTypeSelector({
                 : 'border-border bg-card text-foreground enabled:hover:border-primary/50 enabled:hover:bg-primary/5',
             )}
           >
-            All ({getTagCount(undefined)})
+            {t('providerTypeSelector.tagAll')} ({getTagCount(undefined)})
           </button>
           {tagFilters.map((filter) => (
             <button
@@ -173,8 +175,8 @@ export default function ProviderTypeSelector({
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="search"
-            aria-label="Search providers"
-            placeholder="Search providers..."
+            aria-label={t('providerTypeSelector.searchPlaceholder')}
+            placeholder={t('providerTypeSelector.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             disabled={disableModelSelection}
@@ -198,7 +200,7 @@ export default function ProviderTypeSelector({
         {filteredProviderOptions.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              No providers found matching your search.
+              {t('providerTypeSelector.noProvidersFound')}
             </p>
           </div>
         ) : (
@@ -250,7 +252,7 @@ export default function ProviderTypeSelector({
                       </p>
                       {option.recommended && (
                         <span className="rounded bg-secondary px-1.5 py-0.5 text-xs text-secondary-foreground">
-                          Popular
+                          {t('providerTypeSelector.popular')}
                         </span>
                       )}
                     </div>

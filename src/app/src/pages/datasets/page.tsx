@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { usePageMeta } from '@app/hooks/usePageMeta';
+import { useTranslation } from '@app/i18n';
 import { callApi } from '@app/utils/api';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import Datasets from './Datasets';
@@ -38,7 +39,8 @@ function DatasetsPageContent() {
 }
 
 export default function DatasetsPage() {
-  usePageMeta({ title: 'Datasets', description: 'Prompt test case collections' });
+  const { t } = useTranslation();
+  usePageMeta({ title: t('datasets.title'), description: t('datasets.subtitle') });
   return (
     <ErrorBoundary name="Datasets Page">
       <DatasetsPageContent />

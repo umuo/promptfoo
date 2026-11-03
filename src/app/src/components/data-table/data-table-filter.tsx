@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@app/components/ui/select';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { Filter, Plus, X } from 'lucide-react';
 import type { Column, ColumnFiltersState, Table } from '@tanstack/react-table';
@@ -747,6 +748,7 @@ export function DataTableHeaderFilter<TData>({ column }: { column: Column<TData,
 }
 
 export function DataTableFilter<TData>({ table, columnFilters }: DataTableFilterProps<TData>) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const [activeFilters, setActiveFilters] = React.useState<ActiveFilter[]>([]);
 
@@ -984,7 +986,7 @@ export function DataTableFilter<TData>({ table, columnFilters }: DataTableFilter
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="relative h-11 sm:h-8">
           <Filter className="mr-2 size-4" />
-          Filters
+          {t('dataTable.filters')}
           {activeFilterCount > 0 && (
             <span className="ml-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
               {activeFilterCount}
@@ -999,7 +1001,7 @@ export function DataTableFilter<TData>({ table, columnFilters }: DataTableFilter
       >
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium">Filters</h4>
+            <h4 className="text-sm font-medium">{t('dataTable.filters')}</h4>
             {(activeFilters.length > 0 || activeFilterCount > 0) && (
               <Button
                 variant="ghost"
@@ -1007,7 +1009,7 @@ export function DataTableFilter<TData>({ table, columnFilters }: DataTableFilter
                 onClick={clearAllFilters}
                 className="h-auto px-2 py-1 text-xs text-gray-500 dark:text-gray-400 hover:text-foreground"
               >
-                Clear all
+                {t('dataTable.clearAll')}
               </Button>
             )}
           </div>

@@ -9,6 +9,7 @@ import {
 import { useApiHealth } from '@app/hooks/useApiHealth';
 import { useTelemetry } from '@app/hooks/useTelemetry';
 import { useToast } from '@app/hooks/useToast';
+import { useTranslation } from '@app/i18n';
 import {
   AGENTIC_STRATEGIES_SET,
   ALL_STRATEGIES,
@@ -71,6 +72,7 @@ const availableStrategies: StrategyCardData[] = ALL_STRATEGIES.filter(
 }));
 
 export default function Strategies({ onNext, onBack }: StrategiesProps) {
+  const { t } = useTranslation();
   const { config, updateConfig } = useRedTeamConfig();
   const { recordEvent } = useTelemetry();
   const toast = useToast();
@@ -415,22 +417,19 @@ export default function Strategies({ onNext, onBack }: StrategiesProps) {
 
   return (
     <PageWrapper
-      title="Strategies"
+      title={t('redteamStrategies.title')}
       description={
         <div className="max-w-[1200px]">
           <p className="mb-4">
-            Strategies are attack techniques that systematically probe LLM applications for
-            vulnerabilities. While plugins generate adversarial inputs, strategies determine how
-            these inputs are delivered to maximize attack success rates.{' '}
+            {t('redteamStrategies.description')}{' '}
             <RouterLink
               className="underline"
               to="https://www.promptfoo.dev/docs/red-team/strategies/"
               target="_blank"
             >
-              Learn More
+              {t('redteamPlugins.learnMore')}
             </RouterLink>
           </p>
-          <p>Choose the red team strategies to guide how attacks are generated and executed.</p>
         </div>
       }
       onNext={onNext}
@@ -443,13 +442,8 @@ export default function Strategies({ onNext, onBack }: StrategiesProps) {
         <Alert variant="warning" className="sticky top-0 z-10 -mx-3 mb-3 rounded-none shadow-sm">
           <AlertTriangle className="size-4" />
           <AlertContent>
-            <AlertTitle>Remote Generation Disabled</AlertTitle>
-            <AlertDescription>
-              Some strategies require remote generation and are currently unavailable. These
-              strategies include GOAT, GCG, audio, video, and other advanced attack techniques. To
-              enable them, unset the <code>PROMPTFOO_DISABLE_REMOTE_GENERATION</code> or{' '}
-              <code>PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION</code> environment variables.
-            </AlertDescription>
+            <AlertTitle>{t('redteamStrategies.remoteDisabledTitle')}</AlertTitle>
+            <AlertDescription>{t('redteamStrategies.remoteDisabledDesc')}</AlertDescription>
           </AlertContent>
         </Alert>
       )}
@@ -459,12 +453,8 @@ export default function Strategies({ onNext, onBack }: StrategiesProps) {
         <Alert variant="warning" className="sticky top-0 z-[9] -mx-3 mb-3 rounded-none shadow-sm">
           <AlertTriangle className="size-4" />
           <AlertContent>
-            <AlertTitle>Performance Warning: Too Many Strategies Selected</AlertTitle>
-            <AlertDescription>
-              Selecting many strategies is usually not efficient and will significantly increase
-              evaluation time and cost. It's recommended to use the preset configurations or select
-              only the strategies specifically needed for your use case.
-            </AlertDescription>
+            <AlertTitle>{t('redteamStrategies.tooManySelectedTitle')}</AlertTitle>
+            <AlertDescription>{t('redteamStrategies.tooManySelectedDesc')}</AlertDescription>
           </AlertContent>
         </Alert>
       )}
@@ -491,9 +481,9 @@ export default function Strategies({ onNext, onBack }: StrategiesProps) {
                   isAdvancedOpen ? 'rotate-90' : ''
                 }`}
               />
-              <span className="font-medium">Show Advanced Strategies</span>
+              <span className="font-medium">{t('redteamStrategies.showAdvanced')}</span>
               <span className="text-sm text-muted-foreground">
-                ({selectedAdvancedStrategiesCount} selected)
+                {t('redteamStrategies.selectedCount', { count: selectedAdvancedStrategiesCount })}
               </span>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -517,8 +507,8 @@ export default function Strategies({ onNext, onBack }: StrategiesProps) {
               {/* Multi-modal strategies */}
               {categorizedStrategies.multiModal.length > 0 && (
                 <StrategySection
-                  title="Multi-modal Strategies"
-                  description="Test handling of non-text content including audio, video, and images"
+                  title={t('redteamStrategies.multiModalTitle')}
+                  description={t('redteamStrategies.multiModalDesc')}
                   strategies={categorizedStrategies.multiModal}
                   selectedIds={selectedStrategyIds}
                   onToggle={handleStrategyToggle}
@@ -534,8 +524,8 @@ export default function Strategies({ onNext, onBack }: StrategiesProps) {
               {/* Other strategies */}
               {categorizedStrategies.other.length > 0 && (
                 <StrategySection
-                  title="Other Strategies"
-                  description="Additional specialized strategies for specific attack vectors and edge cases"
+                  title={t('redteamStrategies.otherTitle')}
+                  description={t('redteamStrategies.otherDesc')}
                   strategies={categorizedStrategies.other}
                   selectedIds={selectedStrategyIds}
                   onToggle={handleStrategyToggle}

@@ -1,4 +1,4 @@
-import { categoryAliases, displayNameOverrides } from '@promptfoo/redteam/constants';
+import { getPluginDisplayName as getPluginDisplayNameUtil } from '@app/utils/redteamTranslations';
 
 export type TestResultStats = {
   // The count of successful defenses (tests that passed)
@@ -80,12 +80,8 @@ export const categorizePlugins = (
 /**
  * Gets a display name for a plugin
  */
-export const getPluginDisplayName = (plugin: string): string => {
-  return (
-    displayNameOverrides[plugin as keyof typeof displayNameOverrides] ||
-    categoryAliases[plugin as keyof typeof categoryAliases] ||
-    plugin
-  );
+export const getPluginDisplayName = (plugin: string, isZh?: boolean): string => {
+  return getPluginDisplayNameUtil(plugin, isZh);
 };
 
 export const FRAMEWORK_DESCRIPTIONS: Record<string, string> = {

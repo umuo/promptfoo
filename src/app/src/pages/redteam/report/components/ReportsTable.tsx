@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DataTable } from '@app/components/data-table/data-table';
 import { Badge } from '@app/components/ui/badge';
 import { EVAL_ROUTES, REDTEAM_ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { callApi } from '@app/utils/api';
 import { formatDataGridDate } from '@app/utils/date';
@@ -36,6 +37,7 @@ function getASRColorClass(percentage: number): string {
 }
 
 export default function ReportsTable({ onReportSelected }: ReportsTableProps) {
+  const { t } = useTranslation();
   const [reports, setReports] = useState<EvalSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -105,9 +107,9 @@ export default function ReportsTable({ onReportSelected }: ReportsTableProps) {
     () => [
       {
         accessorKey: 'description',
-        header: 'Name',
+        header: () => t('redteamReport.colName'),
         cell: ({ getValue, row }) => {
-          const description = getValue<string>() || 'Untitled Evaluation';
+          const description = getValue<string>() || t('redteamReport.untitledEval');
           return (
             <Link
               to={REDTEAM_ROUTES.REPORT_DETAIL(row.original.evalId)}
@@ -124,11 +126,13 @@ export default function ReportsTable({ onReportSelected }: ReportsTableProps) {
       },
       {
         accessorKey: 'providers',
-        header: 'Target',
+        header: () => t('redteamReport.colTarget'),
         cell: ({ row }) => {
           const providers = row.original.providers;
           const target =
-            providers.length > 0 ? (providers[0].label ?? providers[0].id) : 'No target';
+            providers.length > 0
+              ? (providers[0].label ?? providers[0].id)
+              : t('redteamReport.noTarget');
           return (
             <Badge variant="secondary" truncate className="font-medium" title={target}>
               {target}
@@ -139,7 +143,7 @@ export default function ReportsTable({ onReportSelected }: ReportsTableProps) {
       },
       {
         accessorKey: 'createdAt',
-        header: 'Scanned At',
+        header: () => t('redteamReport.colScannedAt'),
         cell: ({ getValue }) => (
           <span className="text-sm">{formatDataGridDate(getValue<number>())}</span>
         ),
@@ -147,7 +151,7 @@ export default function ReportsTable({ onReportSelected }: ReportsTableProps) {
       },
       {
         accessorKey: 'attackSuccessRate',
-        header: 'Attack Success Rate',
+        header: () => t('redteamReport.colAttackSuccessRate'),
         cell: ({ getValue }) => {
           const rate = getValue<number>() ?? 0;
           const colorClass = getASRColorClass(rate);
@@ -162,7 +166,7 @@ export default function ReportsTable({ onReportSelected }: ReportsTableProps) {
       },
       {
         accessorKey: 'numTests',
-        header: '# Tests',
+        header: () => t('redteamReport.colNumTests'),
         cell: ({ getValue }) => (
           <span className="font-mono tabular-nums">{getValue<number>()}</span>
         ),
@@ -171,7 +175,7 @@ export default function ReportsTable({ onReportSelected }: ReportsTableProps) {
       },
       {
         accessorKey: 'evalId',
-        header: 'Eval ID',
+        header: () => t('redteamReport.colEvalId'),
         cell: ({ getValue }) => {
           const evalId = getValue<string>();
           return (
@@ -188,7 +192,7 @@ export default function ReportsTable({ onReportSelected }: ReportsTableProps) {
         size: 140,
       },
     ],
-    [onReportSelected],
+    [onReportSelected, t],
   );
 
   return (
@@ -197,10 +201,10 @@ export default function ReportsTable({ onReportSelected }: ReportsTableProps) {
       data={reports}
       isLoading={isLoading}
       error={error}
-      emptyMessage="No red team reports found. Run a red team evaluation to get started."
+      emptyMessage={t('redteamReport.noReportsFound')}
       onRowClick={(row) => onReportSelected(row.evalId)}
       initialSorting={[{ id: 'createdAt', desc: true }]}
-      globalFilterLabel="Search reports"
+      globalFilterLabel={t('redteamReport.searchReports')}
       showToolbar
       showColumnToggle
       showExport

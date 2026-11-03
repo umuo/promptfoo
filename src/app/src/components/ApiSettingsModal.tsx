@@ -14,28 +14,30 @@ import { Label } from '@app/components/ui/label';
 import { Spinner } from '@app/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { type ApiHealthStatus, useApiHealth } from '@app/hooks/useApiHealth';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import useApiConfig from '@app/stores/apiConfig';
 import { AlertCircle, CheckCircle, Circle, RefreshCw } from 'lucide-react';
 
 const StatusIndicator = ({ status }: { status: ApiHealthStatus | 'loading' }) => {
+  const { t } = useTranslation();
   const statusConfig: Record<
     ApiHealthStatus | 'loading',
     { colorClass: string; text: string; Icon: typeof Circle }
   > = {
     connected: {
       colorClass: 'text-emerald-500',
-      text: 'Connected to promptfoo API',
+      text: t('apiSettings.connected'),
       Icon: CheckCircle,
     },
     blocked: {
       colorClass: 'text-red-500',
-      text: 'Cannot connect to promptfoo API',
+      text: t('apiSettings.blocked'),
       Icon: AlertCircle,
     },
-    loading: { colorClass: 'text-blue-500', text: 'Checking connection...', Icon: Circle },
-    unknown: { colorClass: 'text-gray-400', text: 'Checking connection status...', Icon: Circle },
-    disabled: { colorClass: 'text-gray-400', text: 'Remote generation is disabled', Icon: Circle },
+    loading: { colorClass: 'text-blue-500', text: t('apiSettings.loading'), Icon: Circle },
+    unknown: { colorClass: 'text-gray-400', text: t('apiSettings.loading'), Icon: Circle },
+    disabled: { colorClass: 'text-gray-400', text: t('apiSettings.disabled'), Icon: Circle },
   };
 
   const config = statusConfig[status];
@@ -53,6 +55,7 @@ export default function ApiSettingsModal<T extends { open: boolean; onClose: () 
   open,
   onClose,
 }: T) {
+  const { t } = useTranslation();
   const { apiBaseUrl, setApiBaseUrl, enablePersistApiBaseUrl } = useApiConfig();
   const [tempApiBaseUrl, setTempApiBaseUrl] = useState(apiBaseUrl || '');
   const {
@@ -94,7 +97,7 @@ export default function ApiSettingsModal<T extends { open: boolean; onClose: () 
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle className="pr-8">API and Sharing Settings</DialogTitle>
+          <DialogTitle className="pr-8">{t('apiSettings.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -108,12 +111,12 @@ export default function ApiSettingsModal<T extends { open: boolean; onClose: () 
                   onClick={() => checkHealth()}
                   disabled={isChecking}
                   className="size-8"
-                  aria-label="Check connection"
+                  aria-label={t('common.refresh')}
                 >
                   {isChecking ? <Spinner size="sm" /> : <RefreshCw className="size-4" />}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="bottom">Check connection</TooltipContent>
+              <TooltipContent side="bottom">{t('common.refresh')}</TooltipContent>
             </Tooltip>
           </div>
 
@@ -133,7 +136,7 @@ export default function ApiSettingsModal<T extends { open: boolean; onClose: () 
           <div className="space-y-2">
             <h3 className="text-base font-semibold">API</h3>
             <div className="space-y-1.5">
-              <Label htmlFor="api-base-url">API Base URL</Label>
+              <Label htmlFor="api-base-url">{t('apiSettings.apiBaseUrl')}</Label>
               <Input
                 id="api-base-url"
                 value={tempApiBaseUrl}
@@ -150,11 +153,11 @@ export default function ApiSettingsModal<T extends { open: boolean; onClose: () 
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isFormDisabled}>
-            Close
+            {t('common.close')}
           </Button>
           <Button onClick={handleSave} disabled={isFormDisabled}>
             {isSaving && <Spinner size="sm" className="mr-2" />}
-            Save
+            {t('common.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

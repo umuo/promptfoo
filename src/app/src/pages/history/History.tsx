@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from '@app/components/ui/dialog';
 import { EVAL_ROUTES, ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { Link } from 'react-router';
 import type { StandaloneEval } from '@promptfoo/types/standaloneEval';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -40,6 +41,7 @@ export default function History({
   error,
   showDatasetColumn = true,
 }: HistoryProps) {
+  const { t } = useTranslation();
   const [selectedPrompt, setSelectedPrompt] = useState<{
     promptId: string;
     raw: string;
@@ -121,7 +123,7 @@ export default function History({
     () => [
       {
         accessorKey: 'evalId',
-        header: 'Eval',
+        header: t('history.colEval'),
         cell: ({ getValue }) => (
           <Link
             to={EVAL_ROUTES.DETAIL(getValue<string>() || '')}
@@ -137,7 +139,7 @@ export default function History({
         ? [
             {
               accessorKey: 'datasetId',
-              header: 'Dataset',
+              header: t('history.colDataset'),
               cell: ({ getValue }: { getValue: () => string | null }) => {
                 const value = getValue();
                 if (!value) {
@@ -158,13 +160,13 @@ export default function History({
         : []),
       {
         accessorKey: 'provider',
-        header: 'Provider',
+        header: t('history.colProvider'),
         cell: ({ getValue }) => <span className="text-sm">{getValue<string>()}</span>,
         size: 120,
       },
       {
         id: 'prompt',
-        header: 'Prompt',
+        header: t('history.colPrompt'),
         accessorFn: (row) => `[${row.promptId?.slice(0, 6)}]: ${row.raw}`,
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
@@ -191,7 +193,7 @@ export default function History({
       },
       {
         id: 'passRate',
-        header: 'Pass Rate %',
+        header: t('history.colPassRate'),
         accessorFn: (row) => {
           return calculatePassRate(row);
         },
@@ -203,7 +205,7 @@ export default function History({
       },
       {
         accessorKey: 'metrics.testPassCount',
-        header: 'Pass Count',
+        header: t('history.colPassCount'),
         cell: ({ row }) => (
           <Badge variant="success" className="font-mono">
             {row.original.metrics?.testPassCount ?? 0}
@@ -214,7 +216,7 @@ export default function History({
       },
       {
         id: 'failCount',
-        header: 'Fail Count',
+        header: t('history.colFailCount'),
         accessorFn: (row) => (row.metrics?.testFailCount ?? 0) + (row.metrics?.testErrorCount ?? 0),
         cell: ({ row }) => {
           const failCount = row.original.metrics?.testFailCount ?? 0;
@@ -240,7 +242,7 @@ export default function History({
       },
       {
         accessorKey: 'metrics.score',
-        header: 'Raw score',
+        header: t('history.colRawScore'),
         cell: ({ getValue }) => {
           const value = getValue<number | undefined>();
           return <span className="font-mono tabular-nums">{value ? value.toFixed(2) : '-'}</span>;
@@ -249,15 +251,15 @@ export default function History({
         meta: { align: 'right' },
       },
     ],
-    [showDatasetColumn],
+    [showDatasetColumn, t],
   );
 
   return (
     <PageContainer className="fixed top-[calc(var(--nav-height)+var(--update-banner-height,0px))] left-0 right-0 bottom-0 flex flex-col overflow-hidden min-h-0">
       <PageHeader>
         <div className="container max-w-7xl mx-auto p-6">
-          <h1 className="text-2xl font-bold tracking-tight">Evaluation History</h1>
-          <p className="text-sm text-muted-foreground mt-1">View and compare all evaluation runs</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('history.title')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('history.description')}</p>
         </div>
       </PageHeader>
       <div className="flex-1 min-h-0 flex flex-col p-6">
@@ -268,7 +270,7 @@ export default function History({
               data={data}
               isLoading={isLoading}
               error={error}
-              emptyMessage="No evaluation history found. Run an evaluation to see results here."
+              emptyMessage={t('history.emptyMessage')}
               onExportCSV={handleExportCSV}
               onExportJSON={handleExportJSON}
               initialSorting={[{ id: 'evalId', desc: true }]}
@@ -282,7 +284,7 @@ export default function History({
           <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                Prompt Details
+                {t('history.promptDetails')}
                 <Badge variant="outline" className="font-mono text-xs">
                   {selectedPrompt.promptId.slice(0, 6)}
                 </Badge>
@@ -291,7 +293,7 @@ export default function History({
 
             <div className="space-y-2 py-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold">Full Prompt</h4>
+                <h4 className="text-sm font-semibold">{t('history.fullPrompt')}</h4>
                 <CopyButton value={selectedPrompt.raw} />
               </div>
               <div className="p-3 rounded-lg bg-muted/50 border border-border max-h-96 overflow-y-auto">
@@ -301,7 +303,7 @@ export default function History({
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setSelectedPrompt(null)}>
-                Close
+                {t('history.close')}
               </Button>
             </DialogFooter>
           </DialogContent>

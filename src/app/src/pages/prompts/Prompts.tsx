@@ -5,6 +5,7 @@ import { PageContainer } from '@app/components/layout/PageContainer';
 import { PageHeader } from '@app/components/layout/PageHeader';
 import { Card } from '@app/components/ui/card';
 import { EVAL_ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { formatDataGridDate } from '@app/utils/date';
 import { Link, useSearchParams } from 'react-router';
 import PromptDialog from './PromptDialog';
@@ -24,6 +25,7 @@ export default function Prompts({
   error,
   showDatasetColumn = true,
 }: PromptsProps) {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [dialogState, setDialogState] = useState<{ open: boolean; selectedIndex: number }>({
     open: false,
@@ -60,7 +62,7 @@ export default function Prompts({
     () => [
       {
         accessorKey: 'id',
-        header: 'ID',
+        header: t('prompts.headerId'),
         cell: ({ getValue }) => (
           <span className="font-mono text-sm">{getValue<string>().slice(0, 6)}</span>
         ),
@@ -68,7 +70,7 @@ export default function Prompts({
       },
       {
         accessorKey: 'label',
-        header: 'Label',
+        header: t('prompts.headerLabel'),
         accessorFn: (row) => row.prompt.label || row.prompt.display || row.prompt.raw,
         cell: ({ getValue }) => (
           <span className="line-clamp-2 break-words text-sm">{getValue<string>()}</span>
@@ -77,7 +79,7 @@ export default function Prompts({
       },
       {
         accessorKey: 'prompt',
-        header: 'Prompt',
+        header: t('prompts.headerPrompt'),
         accessorFn: (row) => row.prompt.raw,
         cell: ({ getValue }) => (
           <span className="text-sm text-muted-foreground line-clamp-2">{getValue<string>()}</span>
@@ -86,11 +88,11 @@ export default function Prompts({
       },
       {
         accessorKey: 'recentEvalDate',
-        header: 'Most recent eval',
+        header: t('prompts.headerMostRecentEval'),
         cell: ({ getValue, row }) => {
           const value = getValue<string | null>();
           if (!value || !row.original.recentEvalId) {
-            return <span className="text-sm text-muted-foreground">Unknown</span>;
+            return <span className="text-sm text-muted-foreground">{t('common.unknown')}</span>;
           }
           return (
             <Link
@@ -105,7 +107,7 @@ export default function Prompts({
       },
       {
         accessorKey: 'count',
-        header: '# Evals',
+        header: t('prompts.headerEvalsCount'),
         cell: ({ getValue }) => (
           <span className="font-mono tabular-nums">{getValue<number>()}</span>
         ),
@@ -113,7 +115,7 @@ export default function Prompts({
         meta: { align: 'right' },
       },
     ],
-    [],
+    [t],
   );
 
   const handleRowClick = (prompt: ServerPromptWithMetadata) => {
@@ -127,10 +129,8 @@ export default function Prompts({
     <PageContainer className="fixed top-[calc(var(--nav-height)_+_var(--update-banner-height,0px))] left-0 right-0 bottom-0 flex flex-col overflow-hidden min-h-0">
       <PageHeader>
         <div className="container max-w-7xl mx-auto p-6">
-          <h1 className="text-2xl font-bold tracking-tight">Prompts</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage and track all prompt templates and their evaluation history
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('prompts.title')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('prompts.subtitle')}</p>
         </div>
       </PageHeader>
       <div className="flex-1 min-h-0 flex flex-col p-6">
@@ -142,9 +142,9 @@ export default function Prompts({
               isLoading={isLoading}
               error={error}
               onRowClick={handleRowClick}
-              emptyMessage="Create a prompt to start evaluating your AI responses"
+              emptyMessage={t('prompts.emptyMessage')}
               initialSorting={[{ id: 'recentEvalDate', desc: true }]}
-              globalFilterLabel="Search prompts"
+              globalFilterLabel={t('prompts.searchPrompts')}
             />
           </Card>
         </div>

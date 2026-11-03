@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@app/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { SIDEBAR_WIDTH } from '../constants';
@@ -25,12 +26,15 @@ export default function PageWrapper({
   children,
   onNext,
   onBack,
-  nextLabel = 'Next',
-  backLabel = 'Back',
+  nextLabel,
+  backLabel,
   nextDisabled = false,
   backDisabled = false,
   warningMessage,
 }: PageWrapperProps) {
+  const { t } = useTranslation();
+  const effectiveNextLabel = nextLabel || t('redteamSetup.next');
+  const effectiveBackLabel = backLabel || t('redteamSetup.back');
   const [isMinimized, setIsMinimized] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const lastToggleTimeRef = useRef<number>(0);
@@ -89,7 +93,7 @@ export default function PageWrapper({
 
   const nextButton = (
     <Button onClick={onNext} disabled={nextDisabled} className="px-6 py-2 md:mr-[72px]">
-      {nextLabel}
+      {effectiveNextLabel}
       <ChevronRight className="ml-1 size-4" />
     </Button>
   );
@@ -141,7 +145,7 @@ export default function PageWrapper({
             {onBack && (
               <Button variant="outline" onClick={onBack} disabled={backDisabled} className="px-6">
                 <ChevronLeft className="mr-1 size-4" />
-                {backLabel}
+                {effectiveBackLabel}
               </Button>
             )}
           </div>

@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@app/components/ui/popo
 import { Tabs, TabsList, TabsTrigger } from '@app/components/ui/tabs';
 import { EVAL_ROUTES } from '@app/constants/routes';
 import { useToast } from '@app/hooks/useToast';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { fetchUserEmail, updateEvalAuthor } from '@app/utils/api';
 import { formatDuration } from '@app/utils/date';
@@ -55,6 +56,7 @@ export default function EvalHeader({
   children,
   contentClassName,
 }: EvalHeaderProps) {
+  const { t } = useTranslation();
   const { showToast } = useToast();
 
   const { evalId, author, config, totalResultsCount, stats, table, setAuthor } = useTableStore();
@@ -146,11 +148,11 @@ export default function EvalHeader({
                     aria-haspopup="dialog"
                     aria-expanded={evalSelectorDialogOpen}
                     onClick={() => setEvalSelectorDialogOpen(true)}
-                    title={config?.description || evalId || 'Select eval'}
+                    title={config?.description || evalId || t('evalHeader.selectEval')}
                     className="inline-flex min-w-0 items-center gap-1 rounded-sm text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <span className="truncate">
-                      {config?.description || evalId || 'Select eval'}
+                      {config?.description || evalId || t('evalHeader.selectEval')}
                     </span>
                     <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
                   </button>
@@ -171,7 +173,7 @@ export default function EvalHeader({
                 <DropdownMenu open={evalActionsOpen} onOpenChange={setEvalActionsOpen}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
-                      Eval actions
+                      {t('evalHeader.evalActions')}
                       <ChevronDown className="size-4 ml-2" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -181,8 +183,8 @@ export default function EvalHeader({
               {isRedteam && validEvalId && (
                 <Tabs value={activeView} onValueChange={(v) => onActiveViewChange(v as ActiveView)}>
                   <TabsList>
-                    <TabsTrigger value="results">Results</TabsTrigger>
-                    <TabsTrigger value="report">Vulnerability Report</TabsTrigger>
+                    <TabsTrigger value="results">{t('evalHeader.results')}</TabsTrigger>
+                    <TabsTrigger value="report">{t('evalHeader.vulnerabilityReport')}</TabsTrigger>
                   </TabsList>
                 </Tabs>
               )}
@@ -193,26 +195,34 @@ export default function EvalHeader({
           </h1>
           <div className="mt-2 flex min-w-0 flex-nowrap items-center gap-3 print:hidden">
             {formattedDate && (
-              <Chip label="DATE" interactive={false} className="shrink-0">
+              <Chip label={t('evalHeader.date')} interactive={false} className="shrink-0">
                 {formattedDate}
               </Chip>
             )}
             <Chip
-              label="AUTHOR"
+              label={t('evalHeader.author')}
               interactive={false}
               className="hidden min-w-0 max-w-64 md:inline-flex"
             >
-              {author || 'Unknown'}
+              {author || t('common.unknown')}
             </Chip>
             {stats?.durationMs != null && (
-              <Chip label="DURATION" interactive={false} className="hidden shrink-0 sm:inline-flex">
+              <Chip
+                label={t('evalHeader.duration')}
+                interactive={false}
+                className="hidden shrink-0 sm:inline-flex"
+              >
                 {formatDuration(stats.durationMs)}
               </Chip>
             )}
-            <Chip label="PROVIDERS" interactive={false} className="hidden shrink-0 sm:inline-flex">
+            <Chip
+              label={t('evalHeader.providers')}
+              interactive={false}
+              className="hidden shrink-0 sm:inline-flex"
+            >
               {uniqueProviderCount}
             </Chip>
-            <Chip label="TESTS" interactive={false} className="shrink-0">
+            <Chip label={t('evalHeader.tests')} interactive={false} className="shrink-0">
               {totalResultsCount}
             </Chip>
             {evalId && (

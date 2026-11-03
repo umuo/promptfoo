@@ -11,7 +11,8 @@ import {
 import { Input } from '@app/components/ui/input';
 import { Label } from '@app/components/ui/label';
 import { Textarea } from '@app/components/ui/textarea';
-import { categoryAliases, displayNameOverrides } from '@promptfoo/redteam/constants';
+import { useTranslation } from '@app/i18n';
+import { getPluginDisplayName as getPluginDisplayNameUtil } from '@app/utils/redteamTranslations';
 import { Minus, Plus } from 'lucide-react';
 import { useRedTeamConfig } from '../hooks/useRedTeamConfig';
 import type { Plugin } from '@promptfoo/redteam/constants';
@@ -35,6 +36,7 @@ export default function PluginConfigDialog({
   onSave,
 }: PluginConfigDialogProps) {
   const { config: redTeamConfig } = useRedTeamConfig();
+  const { isZh } = useTranslation();
   // Initialize with provided config
   const [localConfig, setLocalConfig] = useState<LocalPluginConfig[string]>(config);
 
@@ -340,12 +342,14 @@ export default function PluginConfigDialog({
 
   const getDialogTitle = () => {
     if (plugin === 'policy') {
-      return 'View Custom Policies';
+      return isZh ? '查看自定义策略' : 'View Custom Policies';
     }
     if (plugin === 'intent') {
-      return 'View Custom Intents';
+      return isZh ? '查看自定义意图' : 'View Custom Intents';
     }
-    return `Configure ${getPluginDisplayName(plugin)}`;
+    return isZh
+      ? `配置 ${getPluginDisplayName(plugin, isZh)}`
+      : `Configure ${getPluginDisplayName(plugin, isZh)}`;
   };
 
   return (
@@ -366,12 +370,12 @@ export default function PluginConfigDialog({
   );
 }
 
-const getPluginDisplayName = (plugin: Plugin | null) => {
+const getPluginDisplayName = (plugin: Plugin | null, isZh?: boolean) => {
   if (!plugin) {
     return '';
   }
 
-  return displayNameOverrides[plugin] || categoryAliases[plugin] || plugin;
+  return getPluginDisplayNameUtil(plugin, isZh);
 };
 
 const arrayKeyToLabel = (key: string) => {

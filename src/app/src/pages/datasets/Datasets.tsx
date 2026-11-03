@@ -5,6 +5,7 @@ import { PageContainer } from '@app/components/layout/PageContainer';
 import { PageHeader } from '@app/components/layout/PageHeader';
 import { Card } from '@app/components/ui/card';
 import { EVAL_ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { formatDataGridDate } from '@app/utils/date';
 import { Link, useSearchParams } from 'react-router';
 import DatasetDialog from './DatasetDialog';
@@ -31,6 +32,7 @@ const getVariables = (testCases: DatasetRow['testCases']) => {
 };
 
 export default function Datasets({ data, isLoading, error }: DatasetsProps) {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [dialogState, setDialogState] = useState<{ open: boolean; selectedIndex: number }>({
     open: false,
@@ -66,7 +68,7 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
     () => [
       {
         accessorKey: 'id',
-        header: 'ID',
+        header: t('datasets.headerId'),
         cell: ({ getValue }) => (
           <span className="font-mono text-sm">{getValue<string>().slice(0, 6)}</span>
         ),
@@ -74,7 +76,7 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
       },
       {
         accessorKey: 'testCases',
-        header: 'Test Cases',
+        header: t('datasets.headerTestCases'),
         cell: ({ getValue }) => {
           const testCases = getValue<TestCase[]>();
           return <span className="text-sm">{Array.isArray(testCases) ? testCases.length : 0}</span>;
@@ -83,7 +85,7 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
       },
       {
         id: 'variables',
-        header: 'Variables',
+        header: t('datasets.headerVariables'),
         accessorFn: (row) => getVariables(row.testCases),
         cell: ({ getValue }) => (
           <span className="text-sm text-muted-foreground">{getValue<string>()}</span>
@@ -92,7 +94,7 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
       },
       {
         accessorKey: 'count',
-        header: 'Total Evals',
+        header: t('datasets.headerTotalEvals'),
         cell: ({ getValue }) => (
           <span className="font-mono tabular-nums">{getValue<number>() || 0}</span>
         ),
@@ -101,7 +103,7 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
       },
       {
         id: 'numPrompts',
-        header: 'Total Prompts',
+        header: t('datasets.headerTotalPrompts'),
         accessorFn: (row) => row.prompts?.length || 0,
         cell: ({ getValue }) => (
           <span className="font-mono tabular-nums">{getValue<number>()}</span>
@@ -111,11 +113,11 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
       },
       {
         accessorKey: 'recentEvalDate',
-        header: 'Latest Eval Date',
+        header: t('datasets.headerLatestEvalDate'),
         cell: ({ getValue }) => {
           const value = getValue<string | null>();
           if (!value) {
-            return <span className="text-sm text-muted-foreground">Unknown</span>;
+            return <span className="text-sm text-muted-foreground">{t('common.unknown')}</span>;
           }
           return <span className="text-sm">{formatDataGridDate(value)}</span>;
         },
@@ -123,7 +125,7 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
       },
       {
         accessorKey: 'recentEvalId',
-        header: 'Latest Eval ID',
+        header: t('datasets.headerLatestEvalId'),
         cell: ({ getValue }) => {
           const value = getValue<string | null>();
           if (!value) {
@@ -142,7 +144,7 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
         size: 150,
       },
     ],
-    [],
+    [t],
   );
 
   const handleRowClick = (dataset: DatasetRow) => {
@@ -156,10 +158,8 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
     <PageContainer className="fixed top-[calc(var(--nav-height)_+_var(--update-banner-height,0px))] left-0 right-0 bottom-0 flex flex-col overflow-hidden min-h-0">
       <PageHeader>
         <div className="container max-w-7xl mx-auto p-6">
-          <h1 className="text-2xl font-bold tracking-tight">Datasets</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage test datasets and track their evaluation history
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('datasets.title')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('datasets.subtitle')}</p>
         </div>
       </PageHeader>
       <div className="flex-1 min-h-0 flex flex-col p-6">
@@ -171,9 +171,9 @@ export default function Datasets({ data, isLoading, error }: DatasetsProps) {
               isLoading={isLoading}
               error={error}
               onRowClick={handleRowClick}
-              emptyMessage="Create a dataset to start evaluating your AI responses"
+              emptyMessage={t('datasets.emptyMessage')}
               initialSorting={[{ id: 'recentEvalDate', desc: true }]}
-              globalFilterLabel="Search datasets"
+              globalFilterLabel={t('datasets.searchDatasets')}
             />
           </Card>
         </div>

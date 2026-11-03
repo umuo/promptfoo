@@ -1,4 +1,5 @@
 import { Button } from '@app/components/ui/button';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { StrategyItem } from './StrategyItem';
 
@@ -33,6 +34,7 @@ export function StrategySection({
   isStrategyAuthGated,
   isStrategyConfigured,
 }: StrategySectionProps) {
+  const { t } = useTranslation();
   const selectedStrategiesInSection = strategies
     .map((strategy) => strategy.id)
     .filter((id) => selectedIds.includes(id));
@@ -63,7 +65,7 @@ export function StrategySection({
             disabled={selectedStrategiesInSection.length === 0}
             className="px-0 font-normal hover:bg-transparent"
           >
-            Reset
+            {t('redteamStrategies.reset')}
           </Button>
         )}
       </div>

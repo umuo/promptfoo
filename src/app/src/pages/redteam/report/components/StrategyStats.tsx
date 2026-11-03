@@ -5,10 +5,12 @@ import { Card, CardContent } from '@app/components/ui/card';
 import { Sheet, SheetContent, SheetTitle } from '@app/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@app/components/ui/tabs';
 import { useCustomPoliciesMap } from '@app/hooks/useCustomPoliciesMap';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { formatASRForDisplay } from '@app/utils/redteam';
+import { getPluginDisplayName, getStrategyDisplayName } from '@app/utils/redteamTranslations';
 import { calculateAttackSuccessRate } from '@promptfoo/presentation/redteamMetrics';
-import { displayNameOverrides, subCategoryDescriptions } from '@promptfoo/redteam/constants';
+import { subCategoryDescriptions } from '@promptfoo/redteam/constants';
 import { type RedteamPluginObject } from '@promptfoo/redteam/types';
 import { compareByASRDescending } from '../utils/utils';
 import { type CategoryStats, type TestResultStats } from './FrameworkComplianceUtils';
@@ -48,6 +50,7 @@ const DrawerContent = ({
   selectedStrategyStats: TestResultStats;
   plugins: RedteamPluginObject[];
 }) => {
+  const { t, isZh } = useTranslation();
   const customPoliciesById = useCustomPoliciesMap(plugins);
 
   const { pluginStats, examplesByStrategy } = useMemo(() => {
@@ -135,9 +138,9 @@ const DrawerContent = ({
             <span className="text-sm font-semibold text-muted-foreground">Prompt:</span>
             {test.result && (
               <Badge variant="secondary" className="ml-2">
-                {displayNameOverrides[
-                  getPluginIdFromResult(test.result) as keyof typeof displayNameOverrides
-                ] || 'Unknown Plugin'}
+                {getPluginDisplayName(getPluginIdFromResult(test.result), isZh) ||
+                  customPoliciesById[getPluginIdFromResult(test.result)]?.name ||
+                  'Unknown Plugin'}
               </Badge>
             )}
           </div>
@@ -162,8 +165,7 @@ const DrawerContent = ({
   return (
     <div className="p-6">
       <h2 className="mb-2 text-xl font-semibold">
-        {displayNameOverrides[selectedStrategy as keyof typeof displayNameOverrides] ||
-          selectedStrategy}
+        {getStrategyDisplayName(selectedStrategy, isZh)}
       </h2>
       <p className="mb-6 text-sm text-muted-foreground">
         {subCategoryDescriptions[selectedStrategy as keyof typeof subCategoryDescriptions] || ''}
@@ -201,15 +203,17 @@ const DrawerContent = ({
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Plugin</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                {t('redteamReport.plugin')}
+              </th>
               <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                Attack Success Rate
+                {t('redteamReport.colAttackSuccessRate')}
               </th>
               <th className="hidden px-4 py-3 text-right font-medium text-muted-foreground sm:table-cell">
-                # Flagged Attempts
+                {t('redteamReport.flaggedAttempts')}
               </th>
               <th className="hidden px-4 py-3 text-right font-medium text-muted-foreground sm:table-cell">
-                # Attempts
+                {t('redteamReport.attempts')}
               </th>
             </tr>
           </thead>
@@ -221,8 +225,7 @@ const DrawerContent = ({
                   <td className="px-4 py-3 font-medium">
                     <div>
                       {customPolicy?.name ??
-                        (displayNameOverrides[stat.plugin as keyof typeof displayNameOverrides] ||
-                          stat.plugin)}
+                        (getPluginDisplayName(stat.plugin, isZh) || stat.plugin)}
                     </div>
                     <div className="mt-1 text-xs font-normal text-muted-foreground sm:hidden">
                       {stat.total - stat.successfulAttacks} flagged / {stat.total} attempts
@@ -247,13 +250,15 @@ const DrawerContent = ({
             value="flagged"
             className="min-h-10 flex-1 whitespace-normal px-2 text-center text-xs leading-tight sm:text-sm"
           >
-            Flagged Attempts ({selectedStrategyStats.pass})
+            {t('redteamReport.flaggedAttemptsWithCount', { count: selectedStrategyStats.pass })}
           </TabsTrigger>
           <TabsTrigger
             value="successful"
             className="min-h-10 flex-1 whitespace-normal px-2 text-center text-xs leading-tight sm:text-sm"
           >
-            Successful Attacks ({selectedStrategyStats.failCount})
+            {t('redteamReport.successfulAttacksWithCount', {
+              count: selectedStrategyStats.failCount,
+            })}
           </TabsTrigger>
         </TabsList>
 
@@ -265,7 +270,9 @@ const DrawerContent = ({
                 .map((test, idx) => renderTestItem(test, idx, 'flagged'))}
             </div>
           ) : (
-            <p className="py-8 text-center text-muted-foreground">No flagged attempts</p>
+            <p className="py-8 text-center text-muted-foreground">
+              {t('redteamReport.noFlaggedAttempts')}
+            </p>
           )}
         </TabsContent>
 
@@ -277,7 +284,9 @@ const DrawerContent = ({
                 .map((test, idx) => renderTestItem(test, idx, 'successful'))}
             </div>
           ) : (
-            <p className="py-8 text-center text-muted-foreground">No successful attacks</p>
+            <p className="py-8 text-center text-muted-foreground">
+              {t('redteamReport.noSuccessfulAttacks')}
+            </p>
           )}
         </TabsContent>
       </Tabs>
@@ -309,6 +318,7 @@ const StrategySheet = ({
   strategyStats: TestResultStats | null;
   plugins: RedteamPluginObject[];
 }) => {
+  const { isZh } = useTranslation();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Reset scroll position when sheet opens
@@ -331,11 +341,7 @@ const StrategySheet = ({
         aria-describedby={undefined}
       >
         <SheetTitle className="sr-only">
-          {selectedStrategy
-            ? displayNameOverrides[selectedStrategy as keyof typeof displayNameOverrides] ||
-              selectedStrategy
-            : 'Strategy'}{' '}
-          Details
+          {selectedStrategy ? getStrategyDisplayName(selectedStrategy, isZh) : 'Strategy'} Details
         </SheetTitle>
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
           {selectedStrategy && strategyStats && (
@@ -366,6 +372,7 @@ const StrategyStats = ({
   passesByPlugin: Record<string, TestWithMetadata[]>;
   plugins: RedteamPluginObject[];
 }) => {
+  const { t, isZh } = useTranslation();
   const [selectedStrategy, setSelectedStrategy] = useState<string | null>(null);
 
   /**
@@ -383,11 +390,11 @@ const StrategyStats = ({
     <>
       <Card
         role="region"
-        aria-label="Attack Methods Statistics"
+        aria-label={t('redteamReport.attackMethodsStats')}
         className="break-inside-avoid print:break-inside-avoid"
       >
         <CardContent className="p-6">
-          <h2 className="mb-4 text-xl font-semibold">Attack Methods</h2>
+          <h2 className="mb-4 text-xl font-semibold">{t('redteamReport.attackMethods')}</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
             {strategies.map(([strategy, { total, failCount }]) => {
               const asr = calculateAttackSuccessRate(total, failCount);
@@ -408,10 +415,7 @@ const StrategyStats = ({
                     'hover:bg-muted/50',
                   )}
                 >
-                  <p className="mb-2 font-semibold">
-                    {displayNameOverrides[strategy as keyof typeof displayNameOverrides] ||
-                      strategy}
-                  </p>
+                  <p className="mb-2 font-semibold">{getStrategyDisplayName(strategy, isZh)}</p>
                   <p className="mb-4 min-h-10 text-sm text-muted-foreground">
                     {subCategoryDescriptions[strategy as keyof typeof subCategoryDescriptions] ||
                       ''}
@@ -432,7 +436,7 @@ const StrategyStats = ({
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {failCount} / {total} attacks succeeded
+                    {t('redteamReport.attacksSucceeded', { failCount, total })}
                   </p>
                 </div>
               );

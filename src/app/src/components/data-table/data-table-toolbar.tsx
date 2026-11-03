@@ -6,6 +6,7 @@ import {
   DropdownMenuTrigger,
 } from '@app/components/ui/dropdown-menu';
 import { Input } from '@app/components/ui/input';
+import { useTranslation } from '@app/i18n';
 import { Download, Search } from 'lucide-react';
 import { DataTableColumnToggle } from './data-table-column-toggle';
 import { DataTableFilter } from './data-table-filter';
@@ -28,6 +29,8 @@ export function DataTableToolbar<TData>({
   onExportJSON,
   toolbarActions,
 }: DataTableToolbarProps<TData>) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-3 border-b border-border p-3 sm:flex-row sm:items-center sm:justify-between">
       {showGlobalFilter && (
@@ -35,8 +38,8 @@ export function DataTableToolbar<TData>({
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             type="search"
-            aria-label={globalFilterLabel}
-            placeholder={globalFilterLabel || 'Search...'}
+            aria-label={globalFilterLabel || t('common.search')}
+            placeholder={globalFilterLabel || t('common.search')}
             value={globalFilter ?? ''}
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="pl-8 rounded-lg"
@@ -59,13 +62,19 @@ export function DataTableToolbar<TData>({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Download className="mr-2 size-4" />
-                Export
+                {t('dataTable.export')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              {onExportCSV && <DropdownMenuItem onClick={onExportCSV}>Export CSV</DropdownMenuItem>}
+              {onExportCSV && (
+                <DropdownMenuItem onClick={onExportCSV}>
+                  {t('dataTable.exportCsv')}
+                </DropdownMenuItem>
+              )}
               {onExportJSON && (
-                <DropdownMenuItem onClick={onExportJSON}>Export JSON</DropdownMenuItem>
+                <DropdownMenuItem onClick={onExportJSON}>
+                  {t('dataTable.exportJson')}
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

@@ -11,11 +11,13 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { IS_RUNNING_LOCALLY } from '@app/constants';
 import { EVAL_ROUTES, MODEL_AUDIT_ROUTES, REDTEAM_ROUTES, ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { Info, Settings } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import ApiSettingsModal from './ApiSettingsModal';
 import InfoModal from './InfoModal';
+import LanguageSelector from './LanguageSelector';
 import Logo from './Logo';
 import ThemeSelector from './ThemeSelector';
 
@@ -131,76 +133,77 @@ function NavDropdown({ label, compactLabel, items, isActiveCheck, className }: N
   );
 }
 
-const createMenuItems: MenuItem[] = [
-  {
-    href: ROUTES.SETUP,
-    label: 'Eval',
-    description: 'Create and configure evaluation tests',
-  },
-  {
-    href: REDTEAM_ROUTES.SETUP,
-    label: 'Red Team',
-    description: 'Set up security testing scenarios',
-  },
-  {
-    href: MODEL_AUDIT_ROUTES.SETUP,
-    label: 'Model Audit',
-    description: 'Configure and run a model security scan',
-  },
-];
-
-const resultsMenuItems: MenuItem[] = [
-  {
-    href: EVAL_ROUTES.ROOT,
-    label: 'Latest Eval',
-    description: 'View your most recent evaluation results',
-  },
-  {
-    href: EVAL_ROUTES.LIST,
-    label: 'All Evals',
-    description: 'Browse and manage all evaluation runs',
-  },
-  {
-    href: REDTEAM_ROUTES.REPORTS,
-    label: 'Red Team Vulnerability Reports',
-    description: 'View findings from red teams',
-  },
-  {
-    href: ROUTES.MEDIA,
-    label: 'Media Library',
-    description: 'Browse generated images, videos, and audio',
-  },
-];
-
-const browseMenuItems: MenuItem[] = [
-  {
-    href: MODEL_AUDIT_ROUTES.ROOT,
-    label: 'Model Audit',
-    description: 'Review model audit runs',
-  },
-  {
-    href: ROUTES.PROMPTS,
-    label: 'Prompts',
-    description: 'Browse saved prompts',
-  },
-  {
-    href: ROUTES.DATASETS,
-    label: 'Datasets',
-    description: 'Browse saved datasets',
-  },
-  {
-    href: ROUTES.HISTORY,
-    label: 'History',
-    description: 'View evaluation history',
-  },
-];
-
 export default function Navigation() {
+  const { t } = useTranslation();
   const [showInfoModal, setShowInfoModal] = useState<boolean>(false);
   const [showApiSettingsModal, setShowApiSettingsModal] = useState<boolean>(false);
 
   const handleModalToggle = () => setShowInfoModal((prevState) => !prevState);
   const handleApiSettingsModalToggle = () => setShowApiSettingsModal((prevState) => !prevState);
+
+  const createMenuItems: MenuItem[] = [
+    {
+      href: ROUTES.SETUP,
+      label: t('nav.eval'),
+      description: t('nav.evalDescription'),
+    },
+    {
+      href: REDTEAM_ROUTES.SETUP,
+      label: t('nav.redTeam'),
+      description: t('nav.redTeamDescription'),
+    },
+    {
+      href: MODEL_AUDIT_ROUTES.SETUP,
+      label: t('nav.modelAudit'),
+      description: t('nav.modelAuditDescription'),
+    },
+  ];
+
+  const resultsMenuItems: MenuItem[] = [
+    {
+      href: EVAL_ROUTES.ROOT,
+      label: t('nav.latestEval'),
+      description: t('nav.latestEvalDescription'),
+    },
+    {
+      href: EVAL_ROUTES.LIST,
+      label: t('nav.allEvals'),
+      description: t('nav.allEvalsDescription'),
+    },
+    {
+      href: REDTEAM_ROUTES.REPORTS,
+      label: t('nav.redTeamReports'),
+      description: t('nav.redTeamReportsDescription'),
+    },
+    {
+      href: ROUTES.MEDIA,
+      label: t('nav.mediaLibrary'),
+      description: t('nav.mediaLibraryDescription'),
+    },
+  ];
+
+  const browseMenuItems: MenuItem[] = [
+    {
+      href: MODEL_AUDIT_ROUTES.ROOT,
+      label: t('nav.modelAudit'),
+      description: t('nav.modelAuditReviewDescription'),
+    },
+    {
+      href: ROUTES.PROMPTS,
+      label: t('nav.prompts'),
+      description: t('nav.promptsDescription'),
+    },
+    {
+      href: ROUTES.DATASETS,
+      label: t('nav.datasets'),
+      description: t('nav.datasetsDescription'),
+    },
+    {
+      href: ROUTES.HISTORY,
+      label: t('nav.history'),
+      description: t('nav.historyDescription'),
+    },
+  ];
 
   return (
     <>
@@ -212,7 +215,7 @@ export default function Navigation() {
             <NavigationMenu>
               <NavigationMenuList className="gap-1">
                 <NavDropdown
-                  label="New"
+                  label={t('nav.new')}
                   items={createMenuItems}
                   isActiveCheck={(pathname) =>
                     [ROUTES.SETUP, REDTEAM_ROUTES.SETUP, MODEL_AUDIT_ROUTES.SETUP].some((route) =>
@@ -221,8 +224,8 @@ export default function Navigation() {
                   }
                 />
                 <NavDropdown
-                  label="View Results"
-                  compactLabel="Results"
+                  label={t('nav.viewResults')}
+                  compactLabel={t('nav.results')}
                   items={resultsMenuItems}
                   isActiveCheck={(pathname) =>
                     [EVAL_ROUTES.ROOT, EVAL_ROUTES.LIST, REDTEAM_ROUTES.REPORTS, ROUTES.MEDIA].some(
@@ -231,7 +234,7 @@ export default function Navigation() {
                   }
                 />
                 <NavDropdown
-                  label="Browse"
+                  label={t('nav.browse')}
                   items={browseMenuItems}
                   className="hidden md:block lg:hidden"
                   isActiveCheck={(pathname) =>
@@ -243,10 +246,10 @@ export default function Navigation() {
               </NavigationMenuList>
             </NavigationMenu>
             <nav className="hidden items-center gap-1 lg:flex">
-              <NavLink href={MODEL_AUDIT_ROUTES.ROOT} label="Model Audit" />
-              <NavLink href={ROUTES.PROMPTS} label="Prompts" />
-              <NavLink href={ROUTES.DATASETS} label="Datasets" />
-              <NavLink href={ROUTES.HISTORY} label="History" />
+              <NavLink href={MODEL_AUDIT_ROUTES.ROOT} label={t('nav.modelAudit')} />
+              <NavLink href={ROUTES.PROMPTS} label={t('nav.prompts')} />
+              <NavLink href={ROUTES.DATASETS} label={t('nav.datasets')} />
+              <NavLink href={ROUTES.HISTORY} label={t('nav.history')} />
             </nav>
           </div>
 
@@ -260,10 +263,10 @@ export default function Navigation() {
                   className="inline-flex size-11 items-center justify-center rounded-md text-foreground/60 transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:size-9"
                 >
                   <Info className="size-5" />
-                  <span className="sr-only">Information</span>
+                  <span className="sr-only">{t('nav.information')}</span>
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom">Information</TooltipContent>
+              <TooltipContent side="bottom">{t('nav.information')}</TooltipContent>
             </Tooltip>
 
             {IS_RUNNING_LOCALLY && (
@@ -275,13 +278,14 @@ export default function Navigation() {
                     className="inline-flex size-11 items-center justify-center rounded-md text-foreground/60 transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:size-9"
                   >
                     <Settings className="size-5" />
-                    <span className="sr-only">API and Sharing Settings</span>
+                    <span className="sr-only">{t('nav.apiAndSharingSettings')}</span>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">API and Sharing Settings</TooltipContent>
+                <TooltipContent side="bottom">{t('nav.apiAndSharingSettings')}</TooltipContent>
               </Tooltip>
             )}
 
+            <LanguageSelector />
             <ThemeSelector />
           </div>
         </div>

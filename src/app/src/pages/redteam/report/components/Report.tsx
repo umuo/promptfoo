@@ -26,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tool
 import { EVAL_ROUTES } from '@app/constants/routes';
 import { usePageMeta } from '@app/hooks/usePageMeta';
 import { useTelemetry } from '@app/hooks/useTelemetry';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
 import { callApi } from '@app/utils/api';
 import { formatDataGridDate } from '@app/utils/date';
@@ -128,6 +129,7 @@ interface ReportProps {
 }
 
 const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {}) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [evalId, setEvalId] = useState<string | null>(evalIdProp ?? null);
   const [evalData, setEvalData] = useState<ResultsFile | null>(null);
@@ -491,7 +493,7 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                 <ListOrdered className="size-5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>View all logs</TooltipContent>
+            <TooltipContent>{t('redteamReport.viewAllLogs')}</TooltipContent>
           </Tooltip>
         )}
         {evalId && evalData && (
@@ -512,9 +514,7 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
               <Printer className="size-5" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            Print this page (Ctrl+P) and select &apos;Save as PDF&apos; for best results
-          </TooltipContent>
+          <TooltipContent>{t('redteamReport.printPageTooltip')}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -530,12 +530,12 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
               <Filter className="size-5" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Filter results</TooltipContent>
+          <TooltipContent>{t('redteamReport.filterResults')}</TooltipContent>
         </Tooltip>
         <ReportSettingsDialogButton />
       </div>
     ),
-    [evalData, evalId, navigate, hasActiveFilters, isFiltersVisible],
+    [evalData, evalId, navigate, hasActiveFilters, isFiltersVisible, t],
   );
 
   // Expose action menu items to parent when embedded
@@ -547,30 +547,30 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
       <>
         <DropdownMenuItem onClick={() => setIsFiltersVisible((v) => !v)}>
           <Filter className="size-4 mr-2" />
-          {isFiltersVisible ? 'Hide filters' : 'Show filters'}
+          {isFiltersVisible ? t('redteamReport.hideFilters') : t('redteamReport.showFilters')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => window.print()}>
           <Printer className="size-4 mr-2" />
-          Print / Save as PDF
+          {t('redteamReport.printPdf')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setReportSettingsOpen(true)}>
           <Settings className="size-4 mr-2" />
-          Report settings
+          {t('redteamReport.reportSettings')}
         </DropdownMenuItem>
       </>,
     );
-  }, [embedded, onActionsReady, evalData, evalId, isFiltersVisible]);
+  }, [embedded, onActionsReady, evalData, evalId, isFiltersVisible, t]);
 
   usePageMeta({
-    title: `Report: ${evalData?.config.description || evalId || 'Red Team'}`,
-    description: 'Red team evaluation report',
+    title: `Report: ${evalData?.config.description || evalId || t('redteamReport.pageTitleDefault')}`,
+    description: t('redteamReport.description'),
   });
 
   if (!evalData || !evalId) {
     return (
       <div className="flex h-36 flex-col items-center justify-center gap-3">
         <Spinner className="size-5" />
-        <span>Waiting for report data</span>
+        <span>{t('redteamReport.waitingForData')}</span>
       </div>
     );
   }
@@ -580,12 +580,9 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
       <div className="flex h-screen flex-col items-center justify-center p-6">
         <Card className="max-w-xl p-8 text-center">
           <AlertTriangle className="mx-auto mb-4 size-16 text-amber-500" />
-          <h1 className="mb-6 text-2xl font-bold">Report unavailable</h1>
-          <p className="text-muted-foreground">
-            The {searchParams.get('evalId') ? 'selected' : 'latest'} evaluation results are not
-            displayable in report format.
-          </p>
-          <p className="text-muted-foreground">Please run a red team and try again.</p>
+          <h1 className="mb-6 text-2xl font-bold">{t('redteamReport.reportUnavailable')}</h1>
+          <p className="text-muted-foreground">{t('redteamReport.reportUnavailableDesc')}</p>
+          <p className="text-muted-foreground">{t('redteamReport.runRedteamFirst')}</p>
         </Card>
       </div>
     );
@@ -645,7 +642,7 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
             <div className="mx-auto max-w-7xl px-4">
               <div className="flex min-h-16 items-center justify-between py-2">
                 <h1 className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap pr-4 font-bold">
-                  {evalData.config.description || 'Risk Assessment'}
+                  {evalData.config.description || t('redteamReport.pageTitleDefault')}
                 </h1>
                 <div className="shrink-0">{actionButtons}</div>
               </div>
@@ -672,7 +669,7 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                   {actionButtons}
                 </div>
                 <h1 className="text-2xl font-bold">
-                  {evalData.config.description || 'Risk Assessment'}
+                  {evalData.config.description || t('redteamReport.pageTitleDefault')}
                 </h1>
                 <p className="mb-4 text-muted-foreground">
                   {formatDataGridDate(evalData.createdAt)}
@@ -686,7 +683,8 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                       <SelectTrigger className="h-6 w-auto rounded-full border-none bg-muted px-3 text-xs">
                         <SelectValue>
                           <span className="text-xs">
-                            <strong>Target:</strong> {prompts[selectedPromptIndex].provider}
+                            <strong>{t('redteamReport.target')}:</strong>{' '}
+                            {prompts[selectedPromptIndex].provider}
                           </span>
                         </SelectValue>
                       </SelectTrigger>
@@ -700,7 +698,7 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                     </Select>
                   ) : selectedPrompt ? (
                     <Badge variant="secondary">
-                      <strong>Target:</strong> {selectedPrompt.provider}
+                      <strong>{t('redteamReport.target')}:</strong> {selectedPrompt.provider}
                     </Badge>
                   ) : null}
                   <Badge
@@ -709,8 +707,9 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                       selectedTokenUsage?.numRequests ?? tableData.length
                     ).toLocaleString()} target probes`}
                   >
-                    <strong>Depth:</strong>{' '}
-                    {(selectedTokenUsage?.numRequests ?? tableData.length).toLocaleString()} probes
+                    <strong>{t('redteamReport.depth')}:</strong>{' '}
+                    {(selectedTokenUsage?.numRequests ?? tableData.length).toLocaleString()}{' '}
+                    {t('redteamReport.probes')}
                   </Badge>
                   {selectedTokenUsage ? (
                     <Tooltip>
@@ -721,34 +720,39 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                             className="cursor-help"
                             aria-label={`${totalTokens.toLocaleString()} total tokens`}
                           >
-                            <strong>Total Tokens:</strong> {totalTokens.toLocaleString()}
+                            <strong>{t('redteamReport.totalTokens')}:</strong>{' '}
+                            {totalTokens.toLocaleString()}
                           </Badge>
                         </span>
                       </TooltipTrigger>
                       <TooltipContent>
                         <div className="flex flex-col gap-1">
                           <span>
-                            <strong>{getPrimaryTokenUsageLabel(true)} Tokens:</strong>{' '}
+                            <strong>
+                              {getPrimaryTokenUsageLabel(true)} {t('redteamReport.targetTokens')}:
+                            </strong>{' '}
                             {targetTokens.toLocaleString()}
                           </span>
                           <span>
-                            <strong>Attacker Tokens:</strong> {attackerTokens.toLocaleString()}
+                            <strong>{t('redteamReport.attackerTokens')}:</strong>{' '}
+                            {attackerTokens.toLocaleString()}
                           </span>
                           <span>
-                            <strong>Grading Tokens:</strong> {gradingTokens.toLocaleString()}
+                            <strong>{t('redteamReport.gradingTokens')}:</strong>{' '}
+                            {gradingTokens.toLocaleString()}
                           </span>
                           {incurredAccounting ? (
                             <>
                               <span>
-                                <strong>Incurred Tokens:</strong>{' '}
+                                <strong>{t('redteamReport.incurredTokens')}:</strong>{' '}
                                 {incurredAccounting.incurredTokens.toLocaleString()}
                               </span>
                               <span>
-                                <strong>Cached Savings:</strong>{' '}
+                                <strong>{t('redteamReport.cachedSavings')}:</strong>{' '}
                                 {incurredAccounting.cachedSavings.toLocaleString()}
                               </span>
                               <span>
-                                <strong>Actual Target Requests:</strong>{' '}
+                                <strong>{t('redteamReport.actualTargetRequests')}:</strong>{' '}
                                 {incurredAccounting.actualRequests.toLocaleString()}
                               </span>
                             </>
@@ -756,17 +760,18 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                           {prompts.length > 1 || generationTokens > 0 || generationRequests > 0 ? (
                             <>
                               <span>
-                                <strong>Selected Target Subtotal:</strong>{' '}
+                                <strong>{t('redteamReport.selectedTargetSubtotal')}:</strong>{' '}
                                 {selectedTargetTokens.toLocaleString()}
                               </span>
                               <span>
-                                <strong>Generation Tokens (scan-wide):</strong>{' '}
+                                <strong>{t('redteamReport.generationTokens')}:</strong>{' '}
                                 {generationTokens > 0 || generationRequests === 0
                                   ? generationTokens.toLocaleString()
                                   : `Unavailable (${generationRequests.toLocaleString()} ${generationRequests === 1 ? 'request' : 'requests'})`}
                               </span>
                               <span>
-                                <strong>Scan Total Tokens:</strong> {totalTokens.toLocaleString()}
+                                <strong>{t('redteamReport.scanTotalTokens')}:</strong>{' '}
+                                {totalTokens.toLocaleString()}
                               </span>
                             </>
                           ) : null}
@@ -776,7 +781,7 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                   ) : null}
                   {selectedPrompt && selectedPrompt.raw !== '{{prompt}}' && (
                     <Badge variant="secondary">
-                      <strong>Prompt:</strong> &quot;
+                      <strong>{t('redteamReport.prompt')}:</strong> &quot;
                       {selectedPrompt.raw.length > 40
                         ? `${selectedPrompt.raw.substring(0, 40)}...`
                         : selectedPrompt.raw}
@@ -789,7 +794,8 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                       className="cursor-pointer"
                       onClick={() => setIsToolsDialogOpen(true)}
                     >
-                      <strong>Tools:</strong> {tools.length} available
+                      <strong>{t('redteamReport.tools')}:</strong>{' '}
+                      {t('redteamReport.toolsAvailable', { count: tools.length })}
                     </Badge>
                   )}
                 </div>
@@ -802,11 +808,11 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
             <Card className="print:hidden">
               <CardContent className="p-4">
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Filters</h2>
+                  <h2 className="text-lg font-semibold">{t('redteamReport.filters')}</h2>
                   {hasActiveFilters && (
                     <Button variant="ghost" size="sm" onClick={clearAllFilters}>
                       <X className="mr-1 size-4" />
-                      Clear All
+                      {t('redteamReport.clearAll')}
                     </Button>
                   )}
                 </div>
@@ -814,11 +820,11 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                 <div className="flex flex-col gap-4 md:flex-row">
                   <div className="min-w-[200px]">
                     <Label htmlFor="search" className="sr-only">
-                      Search prompts & outputs
+                      {t('redteamReport.searchPlaceholder')}
                     </Label>
                     <Input
                       id="search"
-                      placeholder="Search prompts & outputs"
+                      placeholder={t('redteamReport.searchPlaceholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -830,12 +836,12 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                       onValueChange={(value) => setStatusFilter(value as 'all' | 'pass' | 'fail')}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Status" />
+                        <SelectValue placeholder={t('redteamReport.statusPlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All</SelectItem>
-                        <SelectItem value="pass">Pass Only</SelectItem>
-                        <SelectItem value="fail">Fail Only</SelectItem>
+                        <SelectItem value="all">{t('redteamReport.statusAll')}</SelectItem>
+                        <SelectItem value="pass">{t('redteamReport.statusPassOnly')}</SelectItem>
+                        <SelectItem value="fail">{t('redteamReport.statusFailOnly')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -848,14 +854,16 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Risk Categories">
+                        <SelectValue placeholder={t('redteamReport.riskCategories')}>
                           {selectedCategories.length > 0
-                            ? `${selectedCategories.length} selected`
-                            : 'Risk Categories'}
+                            ? t('redteamReport.categoriesSelected', {
+                                count: selectedCategories.length,
+                              })
+                            : t('redteamReport.riskCategories')}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
+                        <SelectItem value="all">{t('redteamReport.allCategories')}</SelectItem>
                         {availableCategories.map((category) => (
                           <SelectItem key={category} value={category}>
                             {category}
@@ -873,14 +881,16 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Strategies">
+                        <SelectValue placeholder={t('redteamReport.strategiesPlaceholder')}>
                           {selectedStrategies.length > 0
-                            ? `${selectedStrategies.length} selected`
-                            : 'Strategies'}
+                            ? t('redteamReport.strategiesSelected', {
+                                count: selectedStrategies.length,
+                              })
+                            : t('redteamReport.strategiesPlaceholder')}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Strategies</SelectItem>
+                        <SelectItem value="all">{t('redteamReport.allStrategies')}</SelectItem>
                         {availableStrategies.map((strategy) => (
                           <SelectItem key={strategy} value={strategy}>
                             {strategy}
@@ -938,12 +948,14 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
         >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Report Settings</DialogTitle>
+              <DialogTitle>{t('redteamReport.reportSettings')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-6 py-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="plugin-pass-rate-embedded">Plugin Pass Rate Threshold</Label>
+                  <Label htmlFor="plugin-pass-rate-embedded">
+                    {t('redteamReport.passRateThresholdLabel')}
+                  </Label>
                   <span className="text-sm font-medium text-muted-foreground">
                     {Number.isNaN(pluginPassRateThreshold)
                       ? 'NaN'
@@ -951,7 +963,7 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Sets the threshold for considering a plugin as passed on the risk cards.
+                  {t('redteamReport.passRateThresholdDesc')}
                 </p>
                 <input
                   id="plugin-pass-rate-embedded"
@@ -975,7 +987,7 @@ const App = ({ evalId: evalIdProp, embedded, onActionsReady }: ReportProps = {})
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={() => setReportSettingsOpen(false)}>Close</Button>
+              <Button onClick={() => setReportSettingsOpen(false)}>{t('common.close')}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

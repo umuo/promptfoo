@@ -18,6 +18,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tool
 import { IS_RUNNING_LOCALLY } from '@app/constants';
 import { EVAL_ROUTES, ROUTES } from '@app/constants/routes';
 import { useToast } from '@app/hooks/useToast';
+import { useTranslation } from '@app/i18n';
 import { useStore as useMainStore } from '@app/stores/evalConfig';
 import { callApi } from '@app/utils/api';
 import { displayNameOverrides } from '@promptfoo/redteam/constants/metadata';
@@ -244,6 +245,7 @@ export default function ResultsView({
   onRecentEvalSelected,
   defaultEvalId,
 }: ResultsViewProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -774,7 +776,7 @@ export default function ResultsView({
     <>
       <DropdownMenuItem onClick={() => setEditNameDialogOpen(true)}>
         <Edit className="size-4 mr-2" />
-        Edit name
+        {t('evalHeader.editName')}
       </DropdownMenuItem>
       <DropdownMenuItem
         disabled={!config}
@@ -787,25 +789,25 @@ export default function ResultsView({
         }}
       >
         <Play className="size-4 mr-2" />
-        Edit and re-run
+        {t('evalHeader.editAndReRun')}
       </DropdownMenuItem>
       <CompareEvalMenuItem onClick={() => setCompareDialogOpen(true)} />
       <DropdownMenuItem onClick={() => setConfigModalOpen(true)}>
         <Eye className="size-4 mr-2" />
-        View YAML
+        {t('evalHeader.viewYaml')}
       </DropdownMenuItem>
       <DownloadMenuItem onClick={() => setDownloadDialogOpen(true)} />
       <DropdownMenuItem onClick={() => setCopyDialogOpen(true)}>
         <Copy className="size-4 mr-2" />
-        Copy
+        {t('evalHeader.copy')}
       </DropdownMenuItem>
       <DropdownMenuItem onClick={handleShareButtonClick} disabled={shareLoading}>
         {shareLoading ? <Spinner className="size-4 mr-2" /> : <Share className="size-4 mr-2" />}
-        Share
+        {t('evalHeader.share')}
       </DropdownMenuItem>
       <DropdownMenuItem onClick={handleDeleteEvalClick} className="text-destructive">
         <Trash2 className="size-4 mr-2" />
-        Delete
+        {t('evalHeader.delete')}
       </DropdownMenuItem>
     </>
   );
@@ -842,6 +844,7 @@ export default function ResultsView({
                 <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-border/50">
                   <div className="flex flex-wrap gap-2 items-center">
                     <SearchInput
+                      placeholder={t('evalHeader.searchPlaceholder')}
                       value={searchInputValue}
                       onChange={(value) => {
                         setSearchInputValue(value);
@@ -866,10 +869,10 @@ export default function ResultsView({
                           onClick={() => setViewSettingsModalOpen(true)}
                         >
                           <Settings className="size-4 mr-2" />
-                          Table Settings
+                          {t('evalHeader.tableSettings')}
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>Edit table view settings</TooltipContent>
+                      <TooltipContent>{t('evalHeader.tableSettingsTooltip')}</TooltipContent>
                     </Tooltip>
                     {chartsToggleButton}
                   </div>

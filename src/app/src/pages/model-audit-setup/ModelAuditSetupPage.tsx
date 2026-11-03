@@ -6,6 +6,7 @@ import { CheckCircleIcon, ErrorIcon, RefreshIcon, SettingsIcon } from '@app/comp
 import { Spinner } from '@app/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
 import { MODEL_AUDIT_ROUTES } from '@app/constants/routes';
+import { useTranslation } from '@app/i18n';
 import { callApi } from '@app/utils/api';
 import { useNavigate } from 'react-router';
 import AdvancedOptionsDialog from '../model-audit/components/AdvancedOptionsDialog';
@@ -17,6 +18,7 @@ import { useModelAuditConfigStore, useModelAuditHistoryStore } from '../model-au
 import type { ScannerCatalogEntry, ScanResult } from '../model-audit/ModelAudit.types';
 
 export default function ModelAuditSetupPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const {
@@ -172,16 +174,18 @@ export default function ModelAuditSetupPage() {
                 <SettingsIcon className="size-7 text-primary" />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-2xl font-bold tracking-tight">Model Audit Setup</h1>
+                <h1 className="text-2xl font-bold tracking-tight">
+                  {t('modelAuditSetup.title', 'Model Audit Setup')}
+                </h1>
                 <p className="text-sm text-muted-foreground mt-1.5">
-                  Configure and run a security scan on ML models.{' '}
+                  {t('modelAuditSetup.subtitle', 'Configure and run a security scan on ML models.')}{' '}
                   <a
                     href="https://www.promptfoo.dev/docs/model-audit/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary underline underline-offset-2 hover:no-underline"
                   >
-                    Learn more
+                    {t('modelAuditSetup.learnMore', 'Learn more')}
                   </a>
                 </p>
               </div>
@@ -194,27 +198,37 @@ export default function ModelAuditSetupPage() {
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Spinner size="sm" />
-                      <span className="text-sm">Checking...</span>
+                      <span className="text-sm">
+                        {t('modelAuditSetup.checking', 'Checking...')}
+                      </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent>Checking ModelAudit installation...</TooltipContent>
+                  <TooltipContent>
+                    {t('modelAuditSetup.checkingTooltip', 'Checking ModelAudit installation...')}
+                  </TooltipContent>
                 </Tooltip>
               ) : installationStatus.installed === true ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
                       <CheckCircleIcon className="size-4" />
-                      <span className="text-sm font-medium">Ready</span>
+                      <span className="text-sm font-medium">
+                        {t('modelAuditSetup.ready', 'Ready')}
+                      </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent>ModelAudit is installed and ready</TooltipContent>
+                  <TooltipContent>
+                    {t('modelAuditSetup.readyTooltip', 'ModelAudit is installed and ready')}
+                  </TooltipContent>
                 </Tooltip>
               ) : installationStatus.installed === false ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-1.5">
                       <ErrorIcon className="size-4 text-destructive" />
-                      <span className="text-sm font-medium text-destructive">Not Installed</span>
+                      <span className="text-sm font-medium text-destructive">
+                        {t('modelAuditSetup.notInstalled', 'Not Installed')}
+                      </span>
                       <button
                         type="button"
                         onClick={() => checkInstallation()}
@@ -226,7 +240,8 @@ export default function ModelAuditSetupPage() {
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {installationStatus.error || 'ModelAudit is not installed'}
+                    {installationStatus.error ||
+                      t('modelAuditSetup.notInstalledTooltip', 'ModelAudit is not installed')}
                   </TooltipContent>
                 </Tooltip>
               ) : null}
@@ -249,7 +264,7 @@ export default function ModelAuditSetupPage() {
                       onClick={() => setError(null)}
                       className="text-sm underline hover:no-underline"
                     >
-                      Dismiss
+                      {t('modelAuditSetup.dismiss', 'Dismiss')}
                     </button>
                   </AlertDescription>
                 </AlertContent>
@@ -273,7 +288,9 @@ export default function ModelAuditSetupPage() {
             {/* Inline Results */}
             {scanResults && (
               <div className="mt-10 pt-8 border-t border-border">
-                <h2 className="text-2xl font-semibold tracking-tight mb-6">Scan Results</h2>
+                <h2 className="text-2xl font-semibold tracking-tight mb-6">
+                  {t('modelAuditSetup.scanResults', 'Scan Results')}
+                </h2>
                 <ResultsTab
                   scanResults={scanResults}
                   onShowFilesDialog={() => setShowFilesDialog(true)}

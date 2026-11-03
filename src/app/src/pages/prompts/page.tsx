@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { usePageMeta } from '@app/hooks/usePageMeta';
+import { useTranslation } from '@app/i18n';
 import { callApi } from '@app/utils/api';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import Prompts from './Prompts';
@@ -47,7 +48,8 @@ function PromptsPageContent({ showDatasetColumn = true }: PromptsPageProps) {
 }
 
 export default function PromptsPage({ showDatasetColumn = true }: PromptsPageProps) {
-  usePageMeta({ title: 'Prompts', description: 'Saved prompt templates' });
+  const { t } = useTranslation();
+  usePageMeta({ title: t('prompts.title'), description: t('prompts.subtitle') });
   return (
     <ErrorBoundary name="Prompts Page">
       <PromptsPageContent showDatasetColumn={showDatasetColumn} />

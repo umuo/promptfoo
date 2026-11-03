@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Alert, AlertContent, AlertDescription } from '@app/components/ui/alert';
 import { useTelemetry } from '@app/hooks/useTelemetry';
+import { useTranslation } from '@app/i18n';
 import { isPlainObject } from '@app/utils/isPlainObject';
 import { AlertTriangle, Info } from 'lucide-react';
 import { DEFAULT_HTTP_TARGET, useRedTeamConfig } from '../../hooks/useRedTeamConfig';
@@ -27,6 +28,7 @@ const requiresPrompt = (target: ProviderOptions) => {
 };
 
 export default function TargetConfiguration({ onNext, onBack }: TargetConfigurationProps) {
+  const { t } = useTranslation();
   const { config, updateConfig, providerType } = useRedTeamConfig();
   const { targetConfigError } = useRedTeamTargetConfigValidation();
   const selectedTarget: ProviderOptions = config.target || DEFAULT_HTTP_TARGET;
@@ -72,7 +74,7 @@ export default function TargetConfiguration({ onNext, onBack }: TargetConfigurat
 
   const getNextButtonTooltip = () => {
     if (!selectedTarget.label) {
-      return 'Please enter a target label';
+      return t('targetConfiguration.enterTargetLabel');
     }
     if (providerError) {
       return providerError;
@@ -81,7 +83,7 @@ export default function TargetConfiguration({ onNext, onBack }: TargetConfigurat
       return targetConfigError;
     }
     if (!isPlainObject(selectedTarget.config)) {
-      return 'Configuration must be a JSON object';
+      return t('targetConfiguration.configMustBeJson');
     }
     if (validationErrors) {
       return validationErrors;
@@ -104,8 +106,10 @@ export default function TargetConfiguration({ onNext, onBack }: TargetConfigurat
 
   return (
     <PageWrapper
-      title={`Configure Target: ${selectedTarget.label || 'Unnamed Target'}`}
-      description="Configure the specific settings for your target. The fields below will change based on the target type you selected."
+      title={t('targetConfiguration.title', {
+        label: selectedTarget.label || t('targetConfiguration.unnamedTarget'),
+      })}
+      description={t('targetConfiguration.description')}
       onNext={handleNext}
       onBack={onBack}
       nextDisabled={!isProviderValid()}
@@ -118,7 +122,7 @@ export default function TargetConfiguration({ onNext, onBack }: TargetConfigurat
             <AlertTriangle className="size-4" />
             <AlertContent>
               <AlertDescription>
-                <p className="text-sm">Please fix the following issues before continuing:</p>
+                <p className="text-sm">{t('targetConfiguration.fixIssuesBeforeContinuing')}</p>
                 <p className="mt-2 text-sm font-medium">{validationErrors}</p>
               </AlertDescription>
             </AlertContent>
@@ -131,16 +135,18 @@ export default function TargetConfiguration({ onNext, onBack }: TargetConfigurat
             <Info className="size-4" />
             <AlertContent>
               <AlertDescription>
-                Need help configuring {selectedTarget.label || selectedTarget.id}?{' '}
+                {t('targetConfiguration.needHelpConfiguring', {
+                  label: selectedTarget.label || selectedTarget.id,
+                })}{' '}
                 <a
                   href={getProviderDocumentationUrl(providerType)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
-                  View the documentation
+                  {t('targetConfiguration.viewDocumentation')}
                 </a>{' '}
-                for detailed setup instructions and examples.
+                {t('targetConfiguration.forDetailedInstructions')}
               </AlertDescription>
             </AlertContent>
           </Alert>

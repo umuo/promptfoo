@@ -9,7 +9,9 @@ import { useApiHealth } from '@app/hooks/useApiHealth';
 import useCloudConfig from '@app/hooks/useCloudConfig';
 import { useTelemetry } from '@app/hooks/useTelemetry';
 import { useToast } from '@app/hooks/useToast';
+import { useTranslation } from '@app/i18n';
 import { cn } from '@app/lib/utils';
+import { getPluginDisplayName } from '@app/utils/redteamTranslations';
 import {
   categoryAliases,
   DEFAULT_PLUGINS,
@@ -187,6 +189,7 @@ export default function PluginsTab({
 }: PluginsTabProps): React.ReactElement {
   const { recordEvent } = useTelemetry();
   const toast = useToast();
+  const { isZh } = useTranslation();
 
   const isPluginDisabled = useCallback(
     (plugin: Plugin) => {
@@ -340,6 +343,7 @@ export default function PluginsTab({
           displayNameOverrides[plugin as keyof typeof displayNameOverrides]
             ?.toLowerCase()
             .includes(lowerSearchTerm) ||
+          getPluginDisplayName(plugin, isZh)?.toLowerCase().includes(lowerSearchTerm) ||
           categoryAliases[plugin as keyof typeof categoryAliases]
             ?.toLowerCase()
             .includes(lowerSearchTerm) ||
@@ -350,7 +354,7 @@ export default function PluginsTab({
 
     // Sort plugins alphabetically by display name (case-insensitive)
     const getDisplayName = (plugin: Plugin) => {
-      return (displayNameOverrides[plugin] || categoryAliases[plugin] || plugin).toLowerCase();
+      return getPluginDisplayName(plugin, isZh).toLowerCase();
     };
 
     return [...plugins].sort((a, b) => {
@@ -359,7 +363,7 @@ export default function PluginsTab({
 
       return displayNameA.localeCompare(displayNameB);
     });
-  }, [searchTerm, allPluginsWithCategories]);
+  }, [searchTerm, allPluginsWithCategories, isZh]);
 
   const currentlySelectedPreset = useMemo(
     () =>
@@ -640,9 +644,7 @@ export default function PluginsTab({
                   >
                     <div className="min-w-0 flex-1">
                       <div className="mb-0.5 flex items-center gap-2">
-                        <span className="font-medium">
-                          {displayNameOverrides[plugin] || categoryAliases[plugin] || plugin}
-                        </span>
+                        <span className="font-medium">{getPluginDisplayName(plugin, isZh)}</span>
                         {category === 'Recently Used' && (
                           <Badge variant="secondary">Recently Used</Badge>
                         )}
@@ -680,7 +682,7 @@ export default function PluginsTab({
                           pluginDisabled
                             ? 'This plugin requires remote generation'
                             : apiHealthStatus === 'connected'
-                              ? `Generate a test case for ${displayNameOverrides[plugin] || categoryAliases[plugin] || plugin}`
+                              ? `Generate a test case for ${getPluginDisplayName(plugin, isZh)}`
                               : 'Promptfoo Cloud connection is required for test generation'
                         }
                       />
@@ -690,9 +692,7 @@ export default function PluginsTab({
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label={`Configure ${
-                                displayNameOverrides[plugin] || categoryAliases[plugin] || plugin
-                              }`}
+                              aria-label={`Configure ${getPluginDisplayName(plugin, isZh)}`}
                               className={cn(
                                 'size-8',
                                 hasConfigError ? 'text-destructive' : 'text-muted-foreground',
@@ -706,8 +706,7 @@ export default function PluginsTab({
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            Configure{' '}
-                            {displayNameOverrides[plugin] || categoryAliases[plugin] || plugin}
+                            Configure {getPluginDisplayName(plugin, isZh)}
                           </TooltipContent>
                         </Tooltip>
                       )}
@@ -717,9 +716,7 @@ export default function PluginsTab({
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label={`View documentation for ${
-                                displayNameOverrides[plugin] || categoryAliases[plugin] || plugin
-                              }`}
+                              aria-label={`View documentation for ${getPluginDisplayName(plugin, isZh)}`}
                               className="size-8"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -741,9 +738,7 @@ export default function PluginsTab({
                         onClick={(e) => {
                           e.stopPropagation();
                         }}
-                        aria-label={
-                          displayNameOverrides[plugin] || categoryAliases[plugin] || plugin
-                        }
+                        aria-label={getPluginDisplayName(plugin, isZh)}
                       />
                     </div>
                   </div>
@@ -810,16 +805,14 @@ export default function PluginsTab({
                           <div className="flex min-w-0 flex-1 items-center gap-2">
                             <AlertCircle className="size-4 shrink-0 text-destructive" />
                             <span className="text-sm font-medium text-destructive">
-                              {displayNameOverrides[plugin] || categoryAliases[plugin] || plugin}
+                              {getPluginDisplayName(plugin, isZh)}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label={`Configure ${
-                                displayNameOverrides[plugin] || categoryAliases[plugin] || plugin
-                              }`}
+                              aria-label={`Configure ${getPluginDisplayName(plugin, isZh)}`}
                               className="size-6 text-destructive hover:text-destructive"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -831,9 +824,7 @@ export default function PluginsTab({
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label={`Remove ${
-                                displayNameOverrides[plugin] || categoryAliases[plugin] || plugin
-                              }`}
+                              aria-label={`Remove ${getPluginDisplayName(plugin, isZh)}`}
                               className="size-6"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -864,15 +855,13 @@ export default function PluginsTab({
                         >
                           <div className="flex min-w-0 flex-1 items-center gap-2">
                             <span className="text-sm font-medium text-foreground">
-                              {displayNameOverrides[plugin] || categoryAliases[plugin] || plugin}
+                              {getPluginDisplayName(plugin, isZh)}
                             </span>
                           </div>
                           <Button
                             variant="ghost"
                             size="icon"
-                            aria-label={`Remove ${
-                              displayNameOverrides[plugin] || categoryAliases[plugin] || plugin
-                            }`}
+                            aria-label={`Remove ${getPluginDisplayName(plugin, isZh)}`}
                             className="ml-2 size-6"
                             onClick={() => handlePluginToggle(plugin)}
                           >
